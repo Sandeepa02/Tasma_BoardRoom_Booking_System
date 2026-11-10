@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TASMA Group - Boardroom Booking System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Project styles -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- Global Modal Overlay -->
+    <div id="globalModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 animate-fade-in">
+        <div id="modalContent" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden transform transition-all">
+        </div>
+    </div>
+
+    <!-- SECTION 1: AUTHENTICATION PAGE -->
+    <div id="authSection" class="min-h-screen flex flex-col items-center justify-center p-4 bg-slate-100 dark:bg-slate-950 text-slate-800">
+        <div class="w-full max-w-md relative z-10 my-auto">
+            <!-- Tasma Corporate Logo Header -->
+            <div class="text-center mb-6 flex flex-col items-center">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-3 inline-block">
+                    <img src="assets/images/tasma-logo.png" alt="TASMA GROUP Logo" class="h-16 object-contain" onerror="this.src='https://placehold.co/240x80/001C71/ffffff?text=TASMA+GROUP'">
+                </div>
+                <h1 class="text-xl font-bold tracking-tight text-tasma-navy dark:text-white">Boardroom Booking System</h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Enterprise Space & Meeting Management</p>
+            </div>
+
+            <!-- Auth Card -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-lg p-6 sm:p-8">
+                <!-- Auth Switcher Tabs -->
+                <div class="flex rounded-xl bg-slate-100 dark:bg-slate-950 p-1 mb-6 border border-slate-200 dark:border-slate-800">
+                    <button id="tabLoginBtn" onclick="switchAuthTab('login')" class="flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-white bg-tasma-navy shadow-sm">Employee Sign In</button>
+                    <button id="tabRegisterBtn" onclick="switchAuthTab('register')" class="flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900">Register Account</button>
+                    <button id="tabAdminBtn" onclick="switchAuthTab('admin')" class="flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900">Admin Portal</button>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">Work Email</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-envelope absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                            <input type="email" id="loginEmail" value="john@company.com" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-tasma-navy" placeholder="name@tasmagroup.com">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">Password</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                            <input type="password" id="loginPassword" value="password123" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-tasma-navy" placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full mt-2 py-3 px-4 bg-tasma-navy hover:bg-tasma-navyHover text-white font-semibold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
+                        <span>Sign In as Employee</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+
+                    <div class="pt-3 border-t border-slate-200 dark:border-slate-800 text-center space-y-1">
+                        <p class="text-xs text-slate-500">Approved Demo: <span class="text-tasma-navy dark:text-tasma-orange font-mono font-bold">john@company.com</span> / <span class="font-mono">password123</span></p>
+                        <p class="text-[11px] text-slate-400">Pending Demo: <span class="font-mono font-bold">sarah@company.com</span></p>
+                    </div>
+                </form>
+
+                <!-- REGISTER FORM -->
+                <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-3.5 hidden">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Full Name</label>
+                        <input type="text" id="regFullName" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none" placeholder="e.g. David Miller">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Employee ID</label>
+                            <input type="text" id="regEmpId" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none" placeholder="EMP-1024">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Department</label>
+                            <select id="regDept" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none">
+                                <option value="Executive">Executive</option>
+                                <option value="Engineering">Engineering</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Human Resources">Human Resources</option>
+                                <option value="Operations">Operations</option>
+                                <option value="IT Department">IT Department</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Work Email</label>
+                        <input type="email" id="regEmail" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none" placeholder="david@tasmagroup.com">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Password</label>
+                            <input type="password" id="regPassword" minlength="6" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none" placeholder="Min 6 chars">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Confirm Password</label>
+                            <input type="password" id="regConfirmPassword" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none" placeholder="Repeat">
+                        </div>
+                    </div>
+
+                    <div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-2">
+                        <i class="fa-solid fa-shield-halved text-tasma-orange mt-0.5"></i>
+                        <span><strong>Policy Notice:</strong> Account requires Admin approval. Each department is limited to a maximum of 3 members.</span>
+                    </div>
+
+                    <button type="submit" class="w-full py-2.5 px-4 bg-tasma-orange hover:bg-tasma-orangeHover text-white font-semibold rounded-xl shadow-sm transition-all text-sm">
+                        Submit Account for Approval
+                    </button>
+                </form>
+
+                <!-- ADMIN LOGIN FORM -->
+                <form id="adminForm" onsubmit="handleAdminLogin(event)" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">Admin Username / Email</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-user-shield absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                            <input type="email" id="adminEmail" value="admin@tasmagroup.com" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy" placeholder="admin@tasmagroup.com">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">Admin Key Password</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-key absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                            <input type="password" id="adminPassword" value="admin123" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy" placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 px-4 bg-tasma-orange hover:bg-tasma-orangeHover text-white font-semibold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-lock"></i>
+                        <span>Access Administrator Portal</span>
+                    </button>
+
+                    <div class="pt-3 border-t border-slate-200 dark:border-slate-800 text-center">
+                        <p class="text-xs text-slate-500">Default Admin Credentials: <span class="text-tasma-navy dark:text-tasma-orange font-mono font-bold">admin@tasmagroup.com</span> / <span class="font-mono">admin123</span></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- AUTH FOOTER SIGNATURE -->
+        <footer class="mt-auto pt-6 pb-2 text-center text-xs text-slate-500 dark:text-slate-400 font-medium">
+            <p>© 2026 TASMA Group Boardroom Booking System</p>
+            <p class="text-[11px] text-tasma-navy dark:text-tasma-orange font-semibold mt-1">© Suraj Sandeepa |Pathum Liyanage - IT Department Tasma Group</p>
+        </footer>
+    </div>
+
+    <!-- SECTION 2: MAIN APPLICATION DASHBOARD -->
+    <div id="appSection" class="hidden min-h-screen flex flex-col md:flex-row bg-slate-50 dark:bg-slate-950">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-40 w-64 bg-tasma-navyDark text-slate-300 flex flex-col transition-transform duration-300 transform -translate-x-full md:translate-x-0 border-r border-slate-800">
+            <!-- Sidebar Header -->
+            <div class="h-20 flex items-center justify-between px-5 border-b border-slate-800 bg-slate-900">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white p-2 rounded-xl shadow-sm">
+                        <img src="assets/images/tasma-logo.png" alt="TASMA Group" class="h-8 object-contain" onerror="this.src='https://placehold.co/120x40/001C71/ffffff?text=TASMA'">
+                    </div>
+                    <div>
+                        <span class="font-extrabold text-white tracking-tight text-sm block">TASMA GROUP</span>
+                        <span class="text-[10px] text-tasma-orange font-semibold" id="portalRoleBadge">Boardroom Booking</span>
+                    </div>
+                </div>
+                <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                <a href="#" onclick="switchNav('dashboard')" id="nav-dashboard" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all text-white bg-tasma-navy shadow-sm">
+                    <i class="fa-solid fa-chart-pie w-5"></i>
+                    <span>Dashboard & Booking</span>
+                </a>
+                <a href="#" onclick="switchNav('my-bookings')" id="nav-my-bookings" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all hover:text-white hover:bg-slate-800 text-slate-400">
+                    <i class="fa-solid fa-calendar-check w-5"></i>
+                    <span>My Bookings</span>
+                    <span id="navBookingCount" class="ml-auto bg-slate-800 text-slate-300 text-xs px-2 py-0.5 rounded-full border border-slate-700">0</span>
+                </a>
+                <a href="#" onclick="switchNav('profile')" id="nav-profile" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all hover:text-white hover:bg-slate-800 text-slate-400">
+                    <i class="fa-solid fa-user-gear w-5"></i>
+                    <span>User Profile</span>
+                </a>
+                <a href="#" onclick="switchNav('admin-panel')" id="nav-admin-panel" class="nav-item hidden items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all hover:text-white hover:bg-slate-800 text-slate-400">
+                    <i class="fa-solid fa-user-check w-5 text-tasma-orange"></i>
+                    <span>Account Approvals</span>
+                    <span id="navPendingCount" class="ml-auto bg-tasma-orange text-white text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+                </a>
+            </nav>
+
+            <!-- User Info Sidebar Badge -->
+            <div class="p-4 border-t border-slate-800 bg-slate-900">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-tasma-orange flex items-center justify-center text-white font-bold text-sm shadow-sm" id="sidebarAvatar">
+                        JS
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-white truncate" id="sidebarUserName">John Silva</p>
+                        <p class="text-xs text-slate-400 truncate" id="sidebarUserDept">EMP001 • Executive</p>
+                    </div>
+                    <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-800 transition-all">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col min-w-0 min-h-screen">
+            <!-- Top Header Bar -->
+            <header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleSidebar()" class="md:hidden p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                    <h2 id="pageTitle" class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Boardroom Reservation</h2>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleTheme()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                        <i class="fa-solid fa-moon dark:hidden"></i>
+                        <i class="fa-solid fa-sun hidden dark:block text-amber-400"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Dynamic Container -->
+            <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+
+                <!-- VIEW 1: DASHBOARD & BOOKING -->
+                <div id="view-dashboard" class="space-y-6 animate-fade-in">
+
+                    <!-- Boardroom Cards -->
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">1. Select Corporate Boardroom</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Choose meeting space location according to capacity & audio/video specs</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <!-- Main Boardroom Card -->
+                            <div id="card-main-boardroom" onclick="selectBoardroom('Main Boardroom')" class="solid-card rounded-2xl p-5 border-2 transition-all cursor-pointer relative overflow-hidden group hover:shadow-md border-tasma-navy ring-2 ring-tasma-navy/10 bg-white dark:bg-slate-900">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-xl bg-tasma-navy text-white flex items-center justify-center font-bold text-xl shadow-sm">
+                                            <i class="fa-solid fa-users-rectangle"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-slate-900 dark:text-white text-base">Main Boardroom</h4>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400">4th Floor • Tasma HQ West Wing</p>
+                                        </div>
+                                    </div>
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Available
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 py-3 my-2 border-y border-slate-200 dark:border-slate-800 text-xs">
+                                    <div>
+                                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">Capacity</span>
+                                        <span class="font-bold text-slate-700 dark:text-slate-200">16 Seats</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">Display</span>
+                                        <span class="font-bold text-slate-700 dark:text-slate-200">Dual 4K TV</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">Tech Spec</span>
+                                        <span class="font-bold text-slate-700 dark:text-slate-200">Telepresence</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1">
+                                    <span class="flex items-center gap-1"><i class="fa-solid fa-wifi text-slate-400"></i> Fiber High-Speed Internet</span>
+                                    <span class="text-tasma-orange font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform">Selected <i class="fa-solid fa-chevron-right text-[10px]"></i></span>
+                                </div>
+                            </div>
+
+                            <!-- Global Boardroom Card -->
+                            <div id="card-global-boardroom" onclick="selectBoardroom('Global Boardroom')" class="solid-card rounded-2xl p-5 border-2 border-transparent transition-all cursor-pointer relative overflow-hidden group hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-xl bg-slate-800 text-tasma-orange flex items-center justify-center font-bold text-xl shadow-sm">
+                                            <i class="fa-solid fa-globe"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-slate-900 dark:text-white text-base">Global Boardroom</h4>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400">6th Floor • Executive Tower</p>
+                                        </div>
+                                    </div>
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Available
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 py-3 my-2 border-y border-slate-200 dark:border-slate-800 text-xs">
+                                    <div>
+                                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">Capacity</span>
+                                        <span class="font-bold text-slate-700 dark:text-slate-200">24 Seats</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">Display</span>
+                                        <span class="font-bold text-slate-700 dark:text-slate-200">Video Wall</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">Tech Spec</span>
+                                        <span class="font-bold text-slate-700 dark:text-slate-200">Smart Mic Array</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1">
+                                    <span class="flex items-center gap-1"><i class="fa-solid fa-video text-slate-400"></i> International Conference Suite</span>
+                                    <span class="text-slate-400 font-semibold flex items-center gap-1 group-hover:translate-x-1 transition-transform">Click to Select <i class="fa-solid fa-chevron-right text-[10px]"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calendar & Time Slot Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                        <!-- CALENDAR WIDGET -->
+                        <div class="lg:col-span-5 solid-card rounded-2xl p-5 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                        <i class="fa-solid fa-calendar-days text-tasma-orange"></i>
+                                        <span>2. Choose Date</span>
+                                    </h3>
+                                    <button onclick="selectToday()" class="text-xs text-tasma-orange font-bold hover:underline">Today</button>
+                                </div>
+
+                                <div class="flex items-center justify-between bg-slate-100 dark:bg-slate-800 p-2 rounded-xl mb-4 border border-slate-200 dark:border-slate-700">
+                                    <button onclick="changeMonth(-1)" class="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all">
+                                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                                    </button>
+                                    <span id="calendarMonthYear" class="text-sm font-bold text-slate-800 dark:text-white">September 2026</span>
+                                    <button onclick="changeMonth(1)" class="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all">
+                                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                                    </button>
+                                </div>
+
+                                <div class="grid grid-cols-7 gap-1 text-center mb-2">
+                                    <span class="text-[11px] font-semibold text-slate-400">Su</span>
+                                    <span class="text-[11px] font-semibold text-slate-400">Mo</span>
+                                    <span class="text-[11px] font-semibold text-slate-400">Tu</span>
+                                    <span class="text-[11px] font-semibold text-slate-400">We</span>
+                                    <span class="text-[11px] font-semibold text-slate-400">Th</span>
+                                    <span class="text-[11px] font-semibold text-slate-400">Fr</span>
+                                    <span class="text-[11px] font-semibold text-slate-400">Sa</span>
+                                </div>
+
+                                <div id="calendarGrid" class="grid grid-cols-7 gap-1 text-center text-sm font-medium">
+                                </div>
+                            </div>
+
+                            <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-wrap gap-3 text-[11px] text-slate-500">
+                                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-tasma-orange"></span> Selected</span>
+                                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Fully Free</span>
+                                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Reserved</span>
+                            </div>
+                        </div>
+
+                        <!-- TIME SLOT PICKER -->
+                        <div class="lg:col-span-7 solid-card rounded-2xl p-5 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                            <i class="fa-solid fa-clock text-tasma-navy"></i>
+                                            <span>3. Select Time Slot (1 Hour)</span>
+                                        </h3>
+                                        <p id="selectedDateDisplayLabel" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Selected: September 25, 2026</p>
+                                    </div>
+                                    <span class="text-xs px-2.5 py-1 rounded-lg bg-tasma-navy text-white font-mono font-bold shadow-sm" id="activeBoardroomTag">
+                                        Main Boardroom
+                                    </span>
+                                </div>
+
+                                <div id="timeSlotsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                                </div>
+                            </div>
+
+                            <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div class="w-full sm:w-auto">
+                                    <span class="text-xs text-slate-400 block uppercase font-semibold">Selected Time Slot</span>
+                                    <span id="selectedSlotSummary" class="text-sm font-bold text-slate-800 dark:text-white">None Selected</span>
+                                </div>
+
+                                <button id="btnProceedBooking" onclick="openBookingConfirmationModal()" disabled class="w-full sm:w-auto px-6 py-2.5 bg-tasma-orange hover:bg-tasma-orangeHover disabled:opacity-40 text-white font-bold text-sm rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
+                                    <span>Proceed to Confirmation</span>
+                                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: MY BOOKINGS -->
+                <div id="view-my-bookings" class="hidden space-y-6 animate-fade-in">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">My Boardroom Reservations</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">View, download PDF passes, or cancel active upcoming bookings</p>
+                        </div>
+
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <div class="relative flex-1 sm:w-64">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
+                                <input type="text" id="bookingSearchInput" oninput="renderMyBookingsTable()" placeholder="Search Token or Boardroom..." class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-3 py-1.5 text-xs focus:ring-2 focus:ring-tasma-navy focus:outline-none">
+                            </div>
+                            <select id="bookingStatusFilter" onchange="renderMyBookingsTable()" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-tasma-navy focus:outline-none">
+                                <option value="ALL">All Status</option>
+                                <option value="Confirmed">Confirmed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="solid-card rounded-2xl overflow-hidden shadow-sm">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+                                <thead class="bg-slate-100 dark:bg-slate-800 uppercase text-[10px] font-bold text-slate-500 tracking-wider border-b border-slate-200 dark:border-slate-800">
+                                    <tr>
+                                        <th class="px-5 py-3.5">Booking Token</th>
+                                        <th class="px-5 py-3.5">Boardroom</th>
+                                        <th class="px-5 py-3.5">Date & Time</th>
+                                        <th class="px-5 py-3.5">Created Date</th>
+                                        <th class="px-5 py-3.5">Status</th>
+                                        <th class="px-5 py-3.5 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="myBookingsTableBody" class="divide-y divide-slate-200 dark:divide-slate-800">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="emptyBookingsState" class="hidden p-12 text-center">
+                            <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">No Reservations Found</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: USER PROFILE -->
+                <div id="view-profile" class="hidden space-y-6 animate-fade-in max-w-2xl">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Employee Profile Settings</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Manage your Tasma Group account information</p>
+                    </div>
+
+                    <div class="solid-card rounded-2xl p-6 space-y-6">
+                        <div class="flex items-center gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
+                            <div class="w-16 h-16 rounded-2xl bg-tasma-navy text-white flex items-center justify-center text-xl font-bold shadow-sm" id="profileBigAvatar">
+                                JS
+                            </div>
+                            <div>
+                                <h4 class="text-base font-bold text-slate-900 dark:text-white" id="profileDisplayName">John Silva</h4>
+                                <span class="inline-block px-2.5 py-0.5 rounded-md bg-tasma-orangeLight text-tasma-orange font-mono text-xs font-bold mt-1" id="profileEmpTag">EMP001</span>
+                            </div>
+                        </div>
+
+                        <form id="profileForm" onsubmit="handleSaveProfile(event)" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Employee ID (Locked)</label>
+                                    <input type="text" id="profileEmpId" disabled class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-500 cursor-not-allowed">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Department</label>
+                                    <input type="text" id="profileDept" disabled class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-500 cursor-not-allowed">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Full Name</label>
+                                <input type="text" id="profileFullName" required class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Work Email</label>
+                                <input type="email" id="profileEmail" required class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none">
+                            </div>
+
+                            <div class="pt-4 flex justify-end">
+                                <button type="submit" class="px-5 py-2.5 bg-tasma-orange hover:bg-tasma-orangeHover text-white font-bold text-xs rounded-xl shadow-sm transition-all">
+                                    Save Profile Updates
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- VIEW 4: ADMIN APPROVAL PANEL -->
+                <div id="view-admin-panel" class="hidden space-y-6 animate-fade-in">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Admin Portal - User Registrations & Department Quotas</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Approve pending employee accounts and monitor max 3 user limits per department</p>
+                    </div>
+
+                    <!-- Department Members Summary Bar -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3" id="departmentStatsContainer">
+                    </div>
+
+                    <div class="solid-card rounded-2xl overflow-hidden shadow-sm">
+                        <div class="p-4 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Pending & Registered Accounts</h4>
+                            <span class="text-xs text-slate-500">Each department max capacity: <strong>3 users</strong></span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+                                <thead class="bg-slate-50 dark:bg-slate-900 uppercase text-[10px] font-bold text-slate-500 border-b border-slate-200 dark:border-slate-800">
+                                    <tr>
+                                        <th class="px-5 py-3">Employee</th>
+                                        <th class="px-5 py-3">ID / Email</th>
+                                        <th class="px-5 py-3">Department</th>
+                                        <th class="px-5 py-3">Quota Status</th>
+                                        <th class="px-5 py-3">Account Status</th>
+                                        <th class="px-5 py-3 text-right">Admin Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminUsersTableBody" class="divide-y divide-slate-200 dark:divide-slate-800">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+
+            <!-- APP FOOTER SIGNATURE -->
+            <footer class="mt-auto py-4 px-6 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-center text-xs text-slate-500">
+                <p>© 2026 TASMA Group Boardroom Reservation Portal</p>
+                <p class="text-[11px] text-tasma-navy dark:text-tasma-orange font-semibold mt-0.5">© Suraj Sandeepa | Pathum Liyanage - IT Department Tasma Group</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Project scripts: load order matters (data first, main last) -->
+    <script src="js/data.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/booking.js"></script>
+    <script src="js/pass.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
