@@ -1,27 +1,20 @@
-// Authentication: login, registration, admin sign-in, logout
+// Authentication: login, admin sign-in, logout (account creation is admin-only, see admin.js)
 function switchAuthTab(tab) {
     const loginForm = document.getElementById('loginForm');
-    const regForm = document.getElementById('registerForm');
     const adminForm = document.getElementById('adminForm');
 
     const tabLoginBtn = document.getElementById('tabLoginBtn');
-    const tabRegBtn = document.getElementById('tabRegisterBtn');
     const tabAdminBtn = document.getElementById('tabAdminBtn');
 
     loginForm.classList.add('hidden');
-    regForm.classList.add('hidden');
     adminForm.classList.add('hidden');
 
     tabLoginBtn.className = "flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900";
-    tabRegBtn.className = "flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900";
     tabAdminBtn.className = "flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900";
 
     if (tab === 'login') {
         loginForm.classList.remove('hidden');
         tabLoginBtn.className = "flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-white bg-tasma-navy shadow-sm";
-    } else if (tab === 'register') {
-        regForm.classList.remove('hidden');
-        tabRegBtn.className = "flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-white bg-tasma-navy shadow-sm";
     } else if (tab === 'admin') {
         adminForm.classList.remove('hidden');
         tabAdminBtn.className = "flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-white bg-tasma-orange shadow-sm";
@@ -73,51 +66,6 @@ function handleAdminLogin(e) {
     } else {
         showToast('Invalid Admin Credentials.', 'error');
     }
-}
-
-function handleRegister(e) {
-    e.preventDefault();
-    const fullName = document.getElementById('regFullName').value.trim();
-    const empId = document.getElementById('regEmpId').value.trim();
-    const email = document.getElementById('regEmail').value.trim().toLowerCase();
-    const password = document.getElementById('regPassword').value;
-    const confirmPassword = document.getElementById('regConfirmPassword').value;
-    const department = document.getElementById('regDept').value;
-
-    if (password !== confirmPassword) {
-        showToast('Passwords do not match.', 'error');
-        return;
-    }
-
-    const users = getUsers();
-    if (users.some(u => u.email.toLowerCase() === email)) {
-        showToast('Email address is already registered.', 'error');
-        return;
-    }
-
-    // Check department limit (Max 3)
-    const currentDeptApproved = getDeptUserCount(department);
-    if (currentDeptApproved >= 3) {
-        showToast(`Department '${department}' has reached maximum 3 registered members.`, 'error');
-        return;
-    }
-
-    const newUser = {
-        id: 'USR-' + Date.now(),
-        fullName,
-        empId,
-        email,
-        password,
-        department,
-        role: 'employee',
-        status: 'pending'
-    };
-
-    users.push(newUser);
-    saveUsers(users);
-
-    showToast('Registration submitted! Awaiting Admin approval.', 'info');
-    switchAuthTab('login');
 }
 
 function logout() {

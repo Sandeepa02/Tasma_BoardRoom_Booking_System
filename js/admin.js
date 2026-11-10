@@ -1,5 +1,49 @@
-// Admin portal: account approvals and department quota monitoring
+// Admin portal: account creation, approvals and department quota monitoring
 const ALL_DEPTS = ["Executive", "Engineering", "Marketing", "Human Resources", "Operations", "IT Department"];
+
+function adminCreateUser(e) {
+    e.preventDefault();
+    if (!currentUser || currentUser.role !== 'admin') return;
+
+    const fullName = document.getElementById('regFullName').value.trim();
+    const empId = document.getElementById('regEmpId').value.trim();
+    const email = document.getElementById('regEmail').value.trim().toLowerCase();
+    const password = document.getElementById('regPassword').value;
+    const confirmPassword = document.getElementById('regConfirmPassword').value;
+    const department = document.getElementById('regDept').value;
+
+    if (password !== confirmPassword) {
+        showToast('Passwords do not match.', 'error');
+        return;
+    }
+
+    const users = getUsers();
+    if (users.some(u => u.email.toLowerCase() === email)) {
+        showToast('Email address is already registered.', 'error');
+        return;
+    }
+
+    if (getDeptUserCount(department) >= 3) {
+        showToast(`Department '${department}' has reached maximum 3 members.`, 'error');
+        return;
+    }
+
+    users.push({
+        id: 'USR-' + Date.now(),
+        fullName,
+        empId,
+        email,
+        password,
+        department,
+        role: 'employee',
+        status: 'approved'
+    });
+    saveUsers(users);
+
+    document.getElementById('adminCreateUserForm').reset();
+    showToast(`Account created for ${fullName}. They can sign in now.`, 'success');
+    renderAdminPanel();
+}
 
 function renderAdminPanel() {
     if (currentUser.role !== 'admin') return;

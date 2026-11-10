@@ -46,7 +46,6 @@
                 <!-- Auth Switcher Tabs -->
                 <div class="flex rounded-xl bg-slate-100 dark:bg-slate-950 p-1 mb-6 border border-slate-200 dark:border-slate-800">
                     <button id="tabLoginBtn" onclick="switchAuthTab('login')" class="flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-white bg-tasma-navy shadow-sm">Employee Sign In</button>
-                    <button id="tabRegisterBtn" onclick="switchAuthTab('register')" class="flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900">Register Account</button>
                     <button id="tabAdminBtn" onclick="switchAuthTab('admin')" class="flex-1 py-2 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900">Admin Portal</button>
                 </div>
 
@@ -77,57 +76,6 @@
                         <p class="text-xs text-slate-500">Approved Demo: <span class="text-tasma-navy dark:text-tasma-orange font-mono font-bold">john@company.com</span> / <span class="font-mono">password123</span></p>
                         <p class="text-[11px] text-slate-400">Pending Demo: <span class="font-mono font-bold">sarah@company.com</span></p>
                     </div>
-                </form>
-
-                <!-- REGISTER FORM -->
-                <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-3.5 hidden">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Full Name</label>
-                        <input type="text" id="regFullName" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none" placeholder="e.g. David Miller">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Employee ID</label>
-                            <input type="text" id="regEmpId" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none" placeholder="EMP-1024">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Department</label>
-                            <select id="regDept" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none">
-                                <option value="Executive">Executive</option>
-                                <option value="Engineering">Engineering</option>
-                                <option value="Marketing">Marketing</option>
-                                <option value="Human Resources">Human Resources</option>
-                                <option value="Operations">Operations</option>
-                                <option value="IT Department">IT Department</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Work Email</label>
-                        <input type="email" id="regEmail" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none" placeholder="david@tasmagroup.com">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Password</label>
-                            <input type="password" id="regPassword" minlength="6" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none" placeholder="Min 6 chars">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Confirm Password</label>
-                            <input type="password" id="regConfirmPassword" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none" placeholder="Repeat">
-                        </div>
-                    </div>
-
-                    <div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-2">
-                        <i class="fa-solid fa-shield-halved text-tasma-orange mt-0.5"></i>
-                        <span><strong>Policy Notice:</strong> Account requires Admin approval. Each department is limited to a maximum of 3 members.</span>
-                    </div>
-
-                    <button type="submit" class="w-full py-2.5 px-4 bg-tasma-orange hover:bg-tasma-orangeHover text-white font-semibold rounded-xl shadow-sm transition-all text-sm">
-                        Submit Account for Approval
-                    </button>
                 </form>
 
                 <!-- ADMIN LOGIN FORM -->
@@ -512,11 +460,73 @@
                 <div id="view-admin-panel" class="hidden space-y-6 animate-fade-in">
                     <div>
                         <h3 class="text-lg font-bold text-slate-900 dark:text-white">Admin Portal - User Registrations & Department Quotas</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Approve pending employee accounts and monitor max 3 user limits per department</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Create employee logins, approve pending accounts, and monitor max 3 user limits per department</p>
                     </div>
 
                     <!-- Department Members Summary Bar -->
                     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3" id="departmentStatsContainer">
+                    </div>
+
+                    <!-- CREATE EMPLOYEE ACCOUNT (Admin only) -->
+                    <div class="solid-card rounded-2xl p-6 shadow-sm">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-user-plus text-tasma-orange"></i>
+                            <h4 class="text-sm font-bold text-slate-900 dark:text-white">Create Employee Account</h4>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-5">Provision a new employee login. Accounts created here are active immediately — only administrators can create users.</p>
+
+                        <form id="adminCreateUserForm" onsubmit="adminCreateUser(event)" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Full Name</label>
+                                    <input type="text" id="regFullName" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none" placeholder="e.g. David Miller">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Work Email</label>
+                                    <input type="email" id="regEmail" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none" placeholder="david@tasmagroup.com">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Employee ID</label>
+                                    <input type="text" id="regEmpId" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none" placeholder="EMP-1024">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Department</label>
+                                    <select id="regDept" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none">
+                                        <option value="Executive">Executive</option>
+                                        <option value="Engineering">Engineering</option>
+                                        <option value="Marketing">Marketing</option>
+                                        <option value="Human Resources">Human Resources</option>
+                                        <option value="Operations">Operations</option>
+                                        <option value="IT Department">IT Department</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Password</label>
+                                    <input type="password" id="regPassword" minlength="6" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none" placeholder="Min 6 chars">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">Confirm Password</label>
+                                    <input type="password" id="regConfirmPassword" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-tasma-navy focus:outline-none" placeholder="Repeat">
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
+                                <p class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-shield-halved text-tasma-orange"></i>
+                                    Each department is limited to a maximum of 3 members.
+                                </p>
+                                <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-tasma-orange hover:bg-tasma-orangeHover text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-user-plus"></i>
+                                    <span>Create User Account</span>
+                                </button>
+                            </div>
+                        </form>
                     </div>
 
                     <div class="solid-card rounded-2xl overflow-hidden shadow-sm">
