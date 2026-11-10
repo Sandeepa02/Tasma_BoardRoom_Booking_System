@@ -72,6 +72,8 @@ const timeSlotsList = [
     { start: '05:00 PM', end: '06:00 PM', label: '5:00 PM – 6:00 PM' }
 ];
 
+const FULL_DAY_SLOT = { start: '08:00 AM', end: '06:00 PM', label: 'Full Day · 8:00 AM – 6:00 PM', fullDay: true };
+
 function initStorage() {
     if (!localStorage.getItem(STORAGE_USERS_KEY)) {
         localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(defaultUsers));

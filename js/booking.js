@@ -30,9 +30,62 @@ function renderTimeSlots() {
         b.status === 'Confirmed'
     );
 
+    // Full-day option: unavailable once any slot that day is reserved
+    const fullDaySelected = !!(selectedTimeSlot && selectedTimeSlot.fullDay);
+    const fullDayBtn = document.createElement('button');
+    fullDayBtn.type = 'button';
+
+    if (activeBookings.length > 0) {
+        fullDayBtn.className = "col-span-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/40 text-slate-400 flex items-center justify-between gap-3 opacity-70 cursor-not-allowed";
+        fullDayBtn.disabled = true;
+        fullDayBtn.innerHTML = `
+            <span class="flex items-center gap-3">
+                <span class="w-9 h-9 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-400 flex items-center justify-center"><i class="fa-solid fa-sun"></i></span>
+                <span class="text-left">
+                    <span class="text-xs font-bold block">Full Day Reservation</span>
+                    <span class="text-[10px] font-mono">8:00 AM – 6:00 PM · existing reservations on this date</span>
+                </span>
+            </span>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-600 flex items-center gap-1">
+                <i class="fa-solid fa-lock text-[9px]"></i> Not Available
+            </span>
+        `;
+    } else if (fullDaySelected) {
+        fullDayBtn.className = "col-span-full p-3 rounded-xl border-2 border-tasma-orange bg-tasma-orange text-white shadow-sm flex items-center justify-between gap-3 cursor-pointer transition-all";
+        fullDayBtn.onclick = () => chooseTimeSlot(FULL_DAY_SLOT);
+        fullDayBtn.innerHTML = `
+            <span class="flex items-center gap-3">
+                <span class="w-9 h-9 rounded-lg bg-white/20 text-white flex items-center justify-center"><i class="fa-solid fa-sun"></i></span>
+                <span class="text-left">
+                    <span class="text-xs font-bold block">Full Day Reservation</span>
+                    <span class="text-[10px] font-mono text-white/80">8:00 AM – 6:00 PM · all 10 slots</span>
+                </span>
+            </span>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-white/20 text-white flex items-center gap-1">
+                <i class="fa-solid fa-check text-[9px]"></i> Selected
+            </span>
+        `;
+    } else {
+        fullDayBtn.className = "col-span-full p-3 rounded-xl border-2 border-dashed border-tasma-navy/40 bg-white dark:bg-slate-900 hover:border-tasma-orange text-slate-800 dark:text-slate-100 flex items-center justify-between gap-3 cursor-pointer transition-all hover:shadow-sm";
+        fullDayBtn.onclick = () => chooseTimeSlot(FULL_DAY_SLOT);
+        fullDayBtn.innerHTML = `
+            <span class="flex items-center gap-3">
+                <span class="w-9 h-9 rounded-lg bg-tasma-navy text-white flex items-center justify-center"><i class="fa-solid fa-sun"></i></span>
+                <span class="text-left">
+                    <span class="text-xs font-bold block">Full Day Reservation</span>
+                    <span class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">8:00 AM – 6:00 PM · all 10 slots</span>
+                </span>
+            </span>
+            <span class="text-[10px] font-bold text-tasma-orange flex items-center gap-1">
+                Select <i class="fa-solid fa-chevron-right text-[9px]"></i>
+            </span>
+        `;
+    }
+    grid.appendChild(fullDayBtn);
+
     timeSlotsList.forEach(slot => {
-        const isBooked = activeBookings.some(b => b.startTime === slot.start);
-        const isSelected = selectedTimeSlot && selectedTimeSlot.start === slot.start;
+        const isBooked = activeBookings.some(b => b.fullDay || b.startTime === slot.start);
+        const isSelected = selectedTimeSlot && !selectedTimeSlot.fullDay && selectedTimeSlot.start === slot.start;
 
         const slotBtn = document.createElement('button');
         slotBtn.type = 'button';
@@ -169,15 +222,16 @@ function confirmAndCreateBooking() {
         startTime: selectedTimeSlot.start,
         endTime: selectedTimeSlot.end,
         createdAt: createdAtFormatted,
-        status: 'Confirmed'
+        status: 'Confirmed',
+        fullDay: !!selectedTimeSlot.fullDay
     };
 
     const bookings = getBookings();
     const doubleBooking = bookings.find(b =>
         b.date === selectedDate &&
         b.boardroom === selectedBoardroom &&
-        b.startTime === selectedTimeSlot.start &&
-        b.status === 'Confirmed'
+        b.status === 'Confirmed' &&
+        (selectedTimeSlot.fullDay || b.fullDay || b.startTime === selectedTimeSlot.start)
     );
 
     if (doubleBooking) {
@@ -241,7 +295,7 @@ function renderMyBookingsTable() {
             <td class="px-5 py-3.5 font-mono font-bold text-tasma-navy dark:text-tasma-orange">${b.token}</td>
             <td class="px-5 py-3.5 font-bold text-slate-800 dark:text-slate-200">${b.boardroom}</td>
             <td class="px-5 py-3.5">
-                <div class="font-semibold text-slate-800 dark:text-slate-200">${b.date}</div>
+                <div class="font-semibold text-slate-800 dark:text-slate-200">${b.date}${b.fullDay ? ' <span class="ml-1 px-1.5 py-0.5 rounded bg-tasma-orange/10 text-tasma-orange text-[9px] font-bold uppercase align-middle">Full Day</span>' : ''}</div>
                 <div class="text-[10px] text-slate-400 font-mono">${b.startTime} - ${b.endTime}</div>
             </td>
             <td class="px-5 py-3.5 text-slate-400 text-[11px]">${b.createdAt}</td>
