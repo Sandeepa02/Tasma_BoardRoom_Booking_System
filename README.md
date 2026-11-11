@@ -98,6 +98,7 @@ Tasma_BoardRoom_Booking_System/
 
 <div align="center">
 
-Made with 💜 for better meetings at TASMA Group
+Made with 💜 © Suraj Sandeepa | Pathum Liyanage - IT Department Tasma Group
+
 
 </div>
