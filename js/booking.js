@@ -244,6 +244,10 @@ function confirmAndCreateBooking() {
     bookings.push(newBooking);
     saveBookings(bookings);
 
+    if (typeof api !== 'undefined') {
+        api.createBooking(newBooking);
+    }
+
     showToast('Reservation confirmed!', 'success');
     showSuccessPassModal(newBooking);
 
@@ -328,6 +332,9 @@ function cancelBooking(bookingId) {
     if (index !== -1) {
         bookings[index].status = 'Cancelled';
         saveBookings(bookings);
+        if (typeof api !== 'undefined') {
+            api.cancelBooking(bookingId);
+        }
         showToast('Booking cancelled.', 'info');
         renderMyBookingsTable();
         renderTimeSlots();

@@ -28,7 +28,7 @@ function adminCreateUser(e) {
         return;
     }
 
-    users.push({
+    const newUser = {
         id: 'USR-' + Date.now(),
         fullName,
         empId,
@@ -37,8 +37,13 @@ function adminCreateUser(e) {
         department,
         role: 'employee',
         status: 'approved'
-    });
+    };
+    users.push(newUser);
     saveUsers(users);
+
+    if (typeof api !== 'undefined') {
+        api.createUser(newUser);
+    }
 
     document.getElementById('adminCreateUserForm').reset();
     showToast(`Account created for ${fullName}. They can sign in now.`, 'success');
@@ -129,6 +134,9 @@ function adminApproveUser(userId) {
 
     u.status = 'approved';
     saveUsers(users);
+    if (typeof api !== 'undefined') {
+        api.updateUserStatus(userId, 'approved');
+    }
     showToast(`Account approved for ${u.fullName}`, 'success');
     renderAdminPanel();
 }
@@ -140,6 +148,9 @@ function adminRejectUser(userId) {
 
     u.status = 'rejected';
     saveUsers(users);
+    if (typeof api !== 'undefined') {
+        api.updateUserStatus(userId, 'rejected');
+    }
     showToast(`Account rejected for ${u.fullName}`, 'info');
     renderAdminPanel();
 }

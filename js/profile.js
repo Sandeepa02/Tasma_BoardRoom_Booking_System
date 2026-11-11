@@ -12,6 +12,9 @@ function handleSaveProfile(e) {
     if (idx !== -1) {
         users[idx] = currentUser;
         saveUsers(users);
+        if (typeof api !== 'undefined') {
+            api.updateProfile(currentUser.id, { fullName, email, department: currentUser.department });
+        }
     }
 
     localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(currentUser));

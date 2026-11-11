@@ -52,6 +52,8 @@ A responsive boardroom reservation portal for TASMA Group employees and administ
 |:---|:---|
 | HTML5 and CSS3 | Structure and styling |
 | Vanilla JavaScript | Application behavior |
+| Node.js & Express | Backend API server |
+| MongoDB & Mongoose | Cloud/local database & data modeling |
 | Tailwind CSS | Utility-first styling |
 | Font Awesome | Icons |
 | jsPDF | PDF pass generation |
@@ -59,19 +61,35 @@ A responsive boardroom reservation portal for TASMA Group employees and administ
 
 ## 🏁 Get started
 
-This is a front-end demo application. Clone or download the repository, then open `index.html` in a modern browser to explore it.
+### 1. Configure MongoDB
+Open the `.env` file in the project root and add your MongoDB Atlas connection URI:
+```env
+PORT=5000
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/boardroom_db?retryWrites=true&w=majority
+```
 
-> **Demo data:** The application uses browser local storage for demo persistence. Data is stored in the browser, not in a server-side database.
+### 2. Start the Server
+```bash
+npm start
+```
+The server will start at **`http://localhost:5000`** and automatically:
+- Connect to MongoDB Atlas
+- Seed default accounts (`admin@tasmagroup.com`, `john@company.com`)
+- Serve the booking portal and API
 
 ## 📁 Project structure
 
 ```text
 Tasma_BoardRoom_Booking_System/
+├── .env                  # MongoDB Atlas credentials & port
+├── .env.example          # Environment template
+├── package.json          # Node.js dependencies
 ├── assets/
 │   └── images/
 ├── css/
 │   └── styles.css
 ├── js/
+│   ├── api.js            # MongoDB backend synchronization bridge
 │   ├── admin.js
 │   ├── app.js
 │   ├── auth.js
@@ -83,6 +101,18 @@ Tasma_BoardRoom_Booking_System/
 │   ├── profile.js
 │   ├── tailwind-config.js
 │   └── ui.js
+├── server/
+│   ├── server.js         # Express server & static host
+│   ├── seed.js           # Initial database seeder
+│   ├── config/
+│   │   └── db.js         # Mongoose connection
+│   ├── models/
+│   │   ├── User.js       # User schema
+│   │   └── Booking.js    # Booking schema
+│   └── routes/
+│       ├── authRoutes.js    # Login & authentication
+│       ├── userRoutes.js    # User management & approvals
+│       └── bookingRoutes.js # Boardroom reservations
 ├── index.html
 └── README.md
 ```
