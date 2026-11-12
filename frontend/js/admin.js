@@ -1,7 +1,7 @@
 // Admin portal: account creation, approvals and department quota monitoring
 const ALL_DEPTS = ["Admin Department", "Payroll Department", "Marketing Department", "Credit Department", "HR Department", "Operations Department", "Finance Department", "Procurement Department", "Logistic Department", "Global Department"];
 
-function adminCreateUser(e) {
+async function adminCreateUser(e) {
     e.preventDefault();
     if (!currentUser || currentUser.role !== 'admin') return;
 
@@ -11,6 +11,7 @@ function adminCreateUser(e) {
     const password = document.getElementById('regPassword').value;
     const confirmPassword = document.getElementById('regConfirmPassword').value;
     const department = document.getElementById('regDept').value;
+    const role = document.getElementById('regRole') ? document.getElementById('regRole').value : 'employee';
 
     if (password !== confirmPassword) {
         showToast('Passwords do not match.', 'error');
@@ -23,7 +24,7 @@ function adminCreateUser(e) {
         return;
     }
 
-    if (getDeptUserCount(department) >= 3) {
+    if (role === 'employee' && getDeptUserCount(department) >= 3) {
         showToast(`Department '${department}' has reached maximum 3 members.`, 'error');
         return;
     }
@@ -35,18 +36,23 @@ function adminCreateUser(e) {
         email,
         password,
         department,
-        role: 'employee',
+        role,
         status: 'approved'
     };
-    users.push(newUser);
-    saveUsers(users);
 
     if (typeof api !== 'undefined') {
-        api.createUser(newUser);
+        const res = await api.createUser(newUser);
+        if (!res.success) {
+            showToast(res.error || 'Failed to create user in database.', 'error');
+            return;
+        }
+    } else {
+        users.push(newUser);
+        saveUsers(users);
     }
 
     document.getElementById('adminCreateUserForm').reset();
-    showToast(`Account created for ${fullName}. They can sign in now.`, 'success');
+    showToast(`${role === 'admin' ? 'Admin' : 'Employee'} account created for ${fullName}.`, 'success');
     renderAdminPanel();
 }
 

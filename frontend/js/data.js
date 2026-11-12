@@ -1,63 +1,20 @@
 // Seed data, localStorage access and shared app state
-const STORAGE_USERS_KEY = 'tasma_br_users_v4';
-const STORAGE_BOOKINGS_KEY = 'tasma_br_bookings_v4';
-const STORAGE_SESSION_KEY = 'tasma_br_session_v4';
+const STORAGE_USERS_KEY = 'tasma_br_users_v5';
+const STORAGE_BOOKINGS_KEY = 'tasma_br_bookings_v5';
+const STORAGE_SESSION_KEY = 'tasma_br_session_v5';
 
-const defaultUsers = [
-    {
-        id: 'USR-001',
-        email: 'john@company.com',
-        password: 'password123',
-        fullName: 'John Silva',
-        empId: 'EMP001',
-        department: 'Executive',
-        role: 'employee',
-        status: 'approved'
-    },
-    {
-        id: 'USR-002',
-        email: 'sarah@company.com',
-        password: 'password123',
-        fullName: 'Sarah Jenkins',
-        empId: 'EMP002',
-        department: 'Engineering',
-        role: 'employee',
-        status: 'pending'
-    },
-    {
-        id: 'USR-ADMIN',
-        email: 'admin@tasmagroup.com',
-        password: 'admin123',
-        fullName: 'System Administrator',
-        empId: 'ADM-001',
-        department: 'IT Department',
-        role: 'admin',
-        status: 'approved'
-    }
-];
+// Real database mode - no hardcoded demo accounts or dummy bookings
+const defaultUsers = [];
+const defaultBookings = [];
 
-const defaultBookings = [
-    {
-        id: 'BK-1001',
-        token: 'BR-20260925-MB-A7F92K',
-        userId: 'USR-001',
-        userName: 'John Silva',
-        empId: 'EMP001',
-        email: 'john@company.com',
-        boardroom: 'Main Boardroom',
-        date: '2026-09-25',
-        startTime: '09:00 AM',
-        endTime: '10:00 AM',
-        createdAt: '2026-09-20 10:15 AM',
-        status: 'Confirmed'
-    }
-];
+const _now = new Date();
+const _todayStr = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, '0')}-${String(_now.getDate()).padStart(2, '0')}`;
 
 let currentUser = null;
 let selectedBoardroom = 'Main Boardroom';
-let selectedDate = '2026-09-25';
+let selectedDate = _todayStr;
 let selectedTimeSlot = null;
-let currentCalendarDate = new Date(2026, 8, 1);
+let currentCalendarDate = new Date();
 
 const timeSlotsList = [
     { start: '08:00 AM', end: '09:00 AM', label: '8:00 AM – 9:00 AM' },
@@ -75,6 +32,13 @@ const timeSlotsList = [
 const FULL_DAY_SLOT = { start: '08:00 AM', end: '06:00 PM', label: 'Full Day · 8:00 AM – 6:00 PM', fullDay: true };
 
 function initStorage() {
+    // Clear legacy storage versions with demo data
+    try {
+        localStorage.removeItem('tasma_br_users_v4');
+        localStorage.removeItem('tasma_br_bookings_v4');
+        localStorage.removeItem('tasma_br_session_v4');
+    } catch (e) {}
+
     if (!localStorage.getItem(STORAGE_USERS_KEY)) {
         localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(defaultUsers));
     }

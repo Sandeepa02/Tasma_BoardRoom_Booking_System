@@ -4,8 +4,9 @@
   "description": "<div align=\"center\">",
   "main": "index.js",
   "scripts": {
-    "start": "node server/server.js",
-    "dev": "node server/server.js"
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js",
+    "create-admin": "node backend/create-admin.js"
   },
   "repository": {
     "type": "git",

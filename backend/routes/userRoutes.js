@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
-// GET /api/users - list all users
+// GET /api/users - list all users (excluding sensitive password field)
 router.get('/', async (req, res) => {
     try {
-        const users = await User.find({}).sort({ createdAt: -1 });
+        const users = await User.find({}).select('-password').sort({ createdAt: -1 });
         res.json(users);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -27,16 +27,19 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'Email address is already registered.' });
         }
 
-        // Check department quota (max 3 approved)
-        const approvedInDept = await User.countDocuments({
-            department,
-            status: 'approved'
-        });
-
-        if (status === 'approved' && approvedInDept >= 3) {
-            return res.status(400).json({
-                error: `Department '${department}' has reached maximum 3 members.`
+        // Check department quota for employees (max 3 approved members per department)
+        if (role !== 'admin') {
+            const approvedInDept = await User.countDocuments({
+                department,
+                role: 'employee',
+                status: 'approved'
             });
+
+            if (status === 'approved' && approvedInDept >= 3) {
+                return res.status(400).json({
+                    error: `Department '${department}' has reached maximum 3 members.`
+                });
+            }
         }
 
         const newUser = new User({

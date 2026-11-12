@@ -1,3 +1,9 @@
+const dns = require('dns');
+// Route DNS queries through public DNS to resolve MongoDB SRV records on Windows/ISPs
+try {
+    dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+} catch (e) {}
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -34,12 +40,12 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Serve frontend static files from root directory
-app.use(express.static(path.join(__dirname, '..')));
+// Serve frontend static files from frontend directory
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 // Fallback to index.html for root path
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
 
 app.listen(PORT, () => {

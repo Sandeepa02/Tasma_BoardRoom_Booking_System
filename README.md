@@ -84,26 +84,29 @@ Tasma_BoardRoom_Booking_System/
 ├── .env                  # MongoDB Atlas credentials & port
 ├── .env.example          # Environment template
 ├── package.json          # Node.js dependencies
-├── assets/
-│   └── images/
-├── css/
-│   └── styles.css
-├── js/
-│   ├── api.js            # MongoDB backend synchronization bridge
-│   ├── admin.js
-│   ├── app.js
-│   ├── auth.js
-│   ├── booking.js
-│   ├── calendar.js
-│   ├── data.js
-│   ├── main.js
-│   ├── pass.js
-│   ├── profile.js
-│   ├── tailwind-config.js
-│   └── ui.js
-├── server/
+├── frontend/             # Frontend client application
+│   ├── index.html        # Application entry point
+│   ├── assets/
+│   │   └── images/
+│   ├── css/
+│   │   └── styles.css
+│   └── js/
+│       ├── api.js        # MongoDB backend synchronization bridge
+│       ├── admin.js
+│       ├── app.js
+│       ├── auth.js
+│       ├── booking.js
+│       ├── calendar.js
+│       ├── data.js
+│       ├── main.js
+│       ├── pass.js
+│       ├── profile.js
+│       ├── tailwind-config.js
+│       └── ui.js
+├── backend/
 │   ├── server.js         # Express server & static host
 │   ├── seed.js           # Initial database seeder
+│   ├── create-admin.js   # Administrator setup script
 │   ├── config/
 │   │   └── db.js         # Mongoose connection
 │   ├── models/
@@ -113,16 +116,16 @@ Tasma_BoardRoom_Booking_System/
 │       ├── authRoutes.js    # Login & authentication
 │       ├── userRoutes.js    # User management & approvals
 │       └── bookingRoutes.js # Boardroom reservations
-├── index.html
 └── README.md
 ```
 
 ## 🗺️ What's inside
 
-- **`index.html`** — application entry point
-- **`css/styles.css`** — custom styles
-- **`js/`** — authentication, booking, calendar, admin, profile, pass, and UI functionality
-- **`assets/images/`** — image assets
+- **`frontend/index.html`** — application entry point
+- **`frontend/css/styles.css`** — custom styles
+- **`frontend/js/`** — authentication, booking, calendar, admin, profile, pass, and UI functionality
+- **`frontend/assets/images/`** — image assets
+- **`backend/`** — Express REST API, MongoDB models, and database integration
 
 ---
 

@@ -14,13 +14,34 @@ const api = {
         }
     },
 
+    // Authenticate user/admin via MongoDB backend
+    async login(email, password, role) {
+        try {
+            const payload = { email, password };
+            if (role) payload.role = role;
+
+            const res = await fetch(`${API_BASE}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || 'Invalid credentials.');
+            }
+            return { success: true, user: data.user };
+        } catch (err) {
+            return { success: false, error: err.message };
+        }
+    },
+
     // Sync users from MongoDB to frontend localStorage
     async syncUsers() {
         try {
             const res = await fetch(`${API_BASE}/users`);
             if (res.ok) {
                 const users = await res.json();
-                if (Array.isArray(users) && users.length > 0) {
+                if (Array.isArray(users)) {
                     saveUsers(users);
                 }
                 return users;
