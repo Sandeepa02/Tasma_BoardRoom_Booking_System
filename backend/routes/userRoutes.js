@@ -54,7 +54,9 @@ router.post('/', async (req, res) => {
         });
 
         await newUser.save();
-        res.status(201).json(newUser);
+        const userObj = newUser.toObject();
+        delete userObj.password;
+        res.status(201).json(userObj);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -110,9 +112,12 @@ router.put('/:id', async (req, res) => {
         if (fullName) user.fullName = fullName.trim();
         if (email) user.email = email.trim().toLowerCase();
         if (department) user.department = department;
+        if (req.body.password) user.password = req.body.password;
 
         await user.save();
-        res.json({ message: 'Profile updated successfully', user });
+        const userObj = user.toObject();
+        delete userObj.password;
+        res.json({ message: 'Profile updated successfully', user: userObj });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
