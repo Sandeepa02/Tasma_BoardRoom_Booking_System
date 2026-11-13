@@ -10,7 +10,7 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ error: 'Email and password are required.' });
         }
 
-        const query = { email: email.trim().toLowerCase(), password };
+        const query = { email: email.trim().toLowerCase() };
         if (role) {
             query.role = role;
         }
@@ -18,6 +18,17 @@ router.post('/login', async (req, res) => {
         const user = await User.findOne(query);
         if (!user) {
             return res.status(401).json({ error: 'Invalid email or password.' });
+        }
+
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Invalid email or password.' });
+        }
+
+        // Auto-upgrade legacy plaintext password to bcrypt hash on successful login
+        if (!user.password.startsWith('$2a$') && !user.password.startsWith('$2b$')) {
+            user.password = password;
+            await user.save();
         }
 
         if (user.status === 'pending') {
