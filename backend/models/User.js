@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
     id: {
@@ -45,5 +46,26 @@ const userSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
+
+// Pre-save hook: Hash password before saving to database
+userSchema.pre('save', async function() {
+    if (!this.isModified('password')) return;
+    // Prevent double hashing if already a bcrypt hash
+    if (this.password && (this.password.startsWith('$2a$') || this.password.startsWith('$2b$'))) {
+        return;
+    }
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+});
+
+// Instance method: Verify candidate password against stored password
+userSchema.methods.comparePassword = async function(candidatePassword) {
+    if (!this.password) return false;
+    // Backward compatibility: If stored password is still plain text
+    if (!this.password.startsWith('$2a$') && !this.password.startsWith('$2b$')) {
+        return this.password === candidatePassword;
+    }
+    return bcrypt.compare(candidatePassword, this.password);
+};
 
 module.exports = mongoose.model('User', userSchema);
