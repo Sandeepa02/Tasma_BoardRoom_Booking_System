@@ -9,11 +9,11 @@ function showToast(message, type = 'info') {
         info: 'fa-circle-info text-tasma-orange'
     };
 
-    toast.className = "pointer-events-auto flex items-center gap-3 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-lg text-xs text-slate-800 dark:text-slate-200 animate-fade-in";
+    toast.className = "pointer-events-auto flex items-center gap-3 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl text-xs text-slate-800 dark:text-slate-200 toast-enter backdrop-blur-sm transition-all";
     toast.innerHTML = `
         <i class="fa-solid ${icons[type] || icons.info} text-base"></i>
         <span class="flex-1 font-semibold">${message}</span>
-        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600">
+        <button onclick="dismissToast(this.parentElement)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1">
             <i class="fa-solid fa-xmark"></i>
         </button>
     `;
@@ -21,14 +21,33 @@ function showToast(message, type = 'info') {
     container.appendChild(toast);
 
     setTimeout(() => {
-        if (toast.parentElement) toast.remove();
+        dismissToast(toast);
     }, 4000);
 }
 
-function closeModal() {
-    document.getElementById('globalModal').classList.add('hidden');
+function dismissToast(toast) {
+    if (!toast || !toast.parentElement) return;
+    toast.classList.remove('toast-enter');
+    toast.classList.add('toast-exit');
+    setTimeout(() => {
+        if (toast.parentElement) toast.remove();
+    }, 250);
 }
 
+function closeModal() {
+    const modal = document.getElementById('globalModal');
+    if (!modal) return;
+    const content = document.getElementById('modalContent');
+    if (content) {
+        content.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            content.classList.remove('opacity-0', 'scale-95');
+        }, 150);
+    } else {
+        modal.classList.add('hidden');
+    }
+}
 
 // Toggle password visibility (show / hide password)
 function togglePasswordVisibility(inputId, btn) {
