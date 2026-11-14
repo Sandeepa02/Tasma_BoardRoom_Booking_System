@@ -37,7 +37,7 @@ function renderCalendar() {
             stateClasses += " rounded-xl";
         }
 
-        dayBtn.className = `h-9 flex flex-col items-center justify-center text-xs transition-all relative ${stateClasses}`;
+        dayBtn.className = `h-9 flex flex-col items-center justify-center text-xs transition-all duration-200 active:scale-95 cursor-pointer relative ${stateClasses}`;
         dayBtn.onclick = () => selectCalendarDate(dateString);
 
         dayBtn.innerHTML = `
