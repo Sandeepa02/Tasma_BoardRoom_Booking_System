@@ -1,7 +1,12 @@
 // App shell: launching after login, sidebar navigation, theme toggle
 function launchApp() {
-    document.getElementById('authSection').classList.add('hidden');
-    document.getElementById('appSection').classList.remove('hidden');
+    const authSec = document.getElementById('authSection');
+    const appSec = document.getElementById('appSection');
+    authSec.classList.add('hidden');
+    appSec.classList.remove('hidden');
+    appSec.classList.remove('animate-fade-in');
+    void appSec.offsetWidth;
+    appSec.classList.add('animate-fade-in');
 
     const initials = currentUser.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     document.getElementById('sidebarAvatar').innerText = initials;
@@ -49,7 +54,14 @@ function switchNav(viewId) {
         }
     });
 
-    document.getElementById(`view-${viewId}`).classList.remove('hidden');
+    const targetView = document.getElementById(`view-${viewId}`);
+    if (targetView) {
+        targetView.classList.remove('hidden');
+        targetView.classList.remove('animate-fade-in-up');
+        void targetView.offsetWidth; // re-trigger animation
+        targetView.classList.add('animate-fade-in-up');
+    }
+
     const activeNavItem = document.getElementById(`nav-${viewId}`);
     if (activeNavItem) {
         activeNavItem.className = "nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all text-white bg-tasma-navy shadow-sm";
