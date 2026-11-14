@@ -7,11 +7,11 @@ function selectBoardroom(name) {
     const cardGlobal = document.getElementById('card-global-boardroom');
 
     if (name === 'Main Boardroom') {
-        cardMain.className = "solid-card rounded-2xl p-5 border-2 transition-all cursor-pointer relative overflow-hidden group hover:shadow-md border-tasma-navy ring-2 ring-tasma-navy/10 bg-white dark:bg-slate-900";
-        cardGlobal.className = "solid-card rounded-2xl p-5 border-2 border-transparent transition-all cursor-pointer relative overflow-hidden group hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700";
+        cardMain.className = "solid-card rounded-2xl p-5 border-2 transition-all duration-300 cursor-pointer relative overflow-hidden group hover:shadow-xl hover:-translate-y-1 border-tasma-navy ring-2 ring-tasma-navy/10 bg-white dark:bg-slate-900";
+        cardGlobal.className = "solid-card rounded-2xl p-5 border-2 border-transparent transition-all duration-300 cursor-pointer relative overflow-hidden group hover:shadow-lg hover:-translate-y-0.5 hover:border-slate-300 dark:hover:border-slate-700";
     } else {
-        cardGlobal.className = "solid-card rounded-2xl p-5 border-2 transition-all cursor-pointer relative overflow-hidden group hover:shadow-md border-tasma-orange ring-2 ring-tasma-orange/10 bg-white dark:bg-slate-900";
-        cardMain.className = "solid-card rounded-2xl p-5 border-2 border-transparent transition-all cursor-pointer relative overflow-hidden group hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700";
+        cardGlobal.className = "solid-card rounded-2xl p-5 border-2 transition-all duration-300 cursor-pointer relative overflow-hidden group hover:shadow-xl hover:-translate-y-1 border-tasma-orange ring-2 ring-tasma-orange/10 bg-white dark:bg-slate-900";
+        cardMain.className = "solid-card rounded-2xl p-5 border-2 border-transparent transition-all duration-300 cursor-pointer relative overflow-hidden group hover:shadow-lg hover:-translate-y-0.5 hover:border-slate-300 dark:hover:border-slate-700";
     }
 
     document.getElementById('activeBoardroomTag').innerText = name;
@@ -51,7 +51,7 @@ function renderTimeSlots() {
             </span>
         `;
     } else if (fullDaySelected) {
-        fullDayBtn.className = "col-span-full p-3 rounded-xl border-2 border-tasma-orange bg-tasma-orange text-white shadow-sm flex items-center justify-between gap-3 cursor-pointer transition-all";
+        fullDayBtn.className = "col-span-full p-3 rounded-xl border-2 border-tasma-orange bg-tasma-orange text-white shadow-md flex items-center justify-between gap-3 cursor-pointer transition-all duration-200 scale-[1.01]";
         fullDayBtn.onclick = () => chooseTimeSlot(FULL_DAY_SLOT);
         fullDayBtn.innerHTML = `
             <span class="flex items-center gap-3">
@@ -66,7 +66,7 @@ function renderTimeSlots() {
             </span>
         `;
     } else {
-        fullDayBtn.className = "col-span-full p-3 rounded-xl border-2 border-dashed border-tasma-navy/40 bg-white dark:bg-slate-900 hover:border-tasma-orange text-slate-800 dark:text-slate-100 flex items-center justify-between gap-3 cursor-pointer transition-all hover:shadow-sm";
+        fullDayBtn.className = "col-span-full p-3 rounded-xl border-2 border-dashed border-tasma-navy/40 bg-white dark:bg-slate-900 hover:border-tasma-orange text-slate-800 dark:text-slate-100 flex items-center justify-between gap-3 cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-98";
         fullDayBtn.onclick = () => chooseTimeSlot(FULL_DAY_SLOT);
         fullDayBtn.innerHTML = `
             <span class="flex items-center gap-3">
@@ -100,7 +100,7 @@ function renderTimeSlots() {
                 </span>
             `;
         } else if (isSelected) {
-            slotBtn.className = "p-3 rounded-xl border-2 border-tasma-orange bg-tasma-orange text-white shadow-sm flex flex-col items-center justify-center gap-1 cursor-pointer transition-all";
+            slotBtn.className = "p-3 rounded-xl border-2 border-tasma-orange bg-tasma-orange text-white shadow-md scale-[1.02] flex flex-col items-center justify-center gap-1 cursor-pointer transition-all duration-200";
             slotBtn.onclick = () => chooseTimeSlot(slot);
             slotBtn.innerHTML = `
                 <span class="text-xs font-bold font-mono">${slot.label}</span>
@@ -109,7 +109,7 @@ function renderTimeSlots() {
                 </span>
             `;
         } else {
-            slotBtn.className = "p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-tasma-orange text-slate-700 dark:text-slate-200 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all hover:shadow-sm";
+            slotBtn.className = "p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-tasma-orange text-slate-700 dark:text-slate-200 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-95";
             slotBtn.onclick = () => chooseTimeSlot(slot);
             slotBtn.innerHTML = `
                 <span class="text-xs font-semibold font-mono">${slot.label}</span>
