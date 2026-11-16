@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Booking = require('../models/Booking');
+const User = require('../models/User');
+const { dispatchBookingEmails } = require('../config/email');
 
 // GET /api/bookings - get all bookings
 router.get('/', async (req, res) => {
@@ -25,6 +28,7 @@ router.post('/', async (req, res) => {
             date,
             startTime,
             endTime,
+            purpose,
             fullDay,
             bookingCreatedAt
         } = req.body;
@@ -49,24 +53,80 @@ router.post('/', async (req, res) => {
             return res.status(409).json({ error: 'Slot already booked! Please select another time.' });
         }
 
+        // Retrieve authenticated employee profile from MongoDB User collection
+        let employee = null;
+        if (userId) {
+            employee = await User.findOne({ id: userId });
+            if (!employee && mongoose.Types.ObjectId.isValid(userId)) {
+                employee = await User.findById(userId);
+            }
+        }
+        if (!employee && email) {
+            employee = await User.findOne({ email: email.trim().toLowerCase() });
+        }
+
+        // Use registered employee information from MongoDB profile, falling back safely if needed
+        const registeredEmail = employee ? employee.email : (email || '').trim();
+        const employeeFullName = employee ? employee.fullName : (userName || 'Employee');
+        const employeeEmpId = employee ? employee.empId : (empId || 'N/A');
+        const employeeDept = employee ? employee.department : 'General';
+        const meetingPurpose = (purpose && purpose.trim()) || 'General Business Meeting';
+
+        // Construct booking document
         const newBooking = new Booking({
-            id: 'BK-' + Date.now(),
+            id: req.body.id || ('BK-' + Date.now()),
             token,
-            userId,
-            userName,
-            empId,
-            email,
+            userId: employee ? employee.id : userId,
+            userName: employeeFullName,
+            empId: employeeEmpId,
+            email: registeredEmail,
             boardroom,
             date,
             startTime,
             endTime,
+            purpose: meetingPurpose,
             fullDay: !!fullDay,
             bookingCreatedAt: bookingCreatedAt || new Date().toISOString().replace('T', ' ').substring(0, 16),
-            status: 'Confirmed'
+            status: 'Confirmed',
+            adminEmailStatus: 'pending',
+            userEmailStatus: 'pending'
         });
 
+        // Save booking in MongoDB first
         await newBooking.save();
+
+        // Respond immediately to frontend so booking is confirmed without delay
         res.status(201).json(newBooking);
+
+        // Asynchronously dispatch email notifications (Admin & Employee)
+        const employeeInfo = {
+            id: employee ? employee.id : userId,
+            fullName: employeeFullName,
+            email: registeredEmail,
+            empId: employeeEmpId,
+            department: employeeDept
+        };
+
+        dispatchBookingEmails(newBooking, employeeInfo)
+            .then(async (statuses) => {
+                try {
+                    await Booking.updateOne(
+                        { _id: newBooking._id },
+                        {
+                            $set: {
+                                adminEmailStatus: statuses.adminEmailStatus,
+                                userEmailStatus: statuses.userEmailStatus
+                            }
+                        }
+                    );
+                } catch (updateErr) {
+                    console.error('Failed to update email delivery statuses in booking:', updateErr.message);
+                }
+            })
+            .catch((dispatchErr) => {
+                console.error('⚠️ [Email Service] Background dispatch error:', dispatchErr.message);
+            });
+
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
