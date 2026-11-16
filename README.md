@@ -61,11 +61,19 @@ A responsive boardroom reservation portal for TASMA Group employees and administ
 
 ## 🏁 Get started
 
-### 1. Configure MongoDB
-Open the `.env` file in the project root and add your MongoDB Atlas connection URI:
+### 1. Configure MongoDB & Notifications
+Open the `.env` file in the project root and configure your database and email credentials:
 ```env
 PORT=5000
 MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/boardroom_db?retryWrites=true&w=majority
+
+# Administrator Notification Recipient
+ADMIN_EMAIL=sandeepasuraj80@gmail.com
+
+# Gmail SMTP Configuration for Nodemailer Notifications
+EMAIL_SERVICE=gmail
+EMAIL_USER=your_company_email@gmail.com
+EMAIL_PASS=your_16_character_google_app_password
 ```
 
 ### 2. Start the Server
