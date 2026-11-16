@@ -44,6 +44,10 @@ function showSuccessPassModal(booking) {
                         <span class="text-slate-400 block text-[10px]">Employee Name</span>
                         <span class="font-bold text-slate-800 dark:text-slate-200">${booking.userName}</span>
                     </div>
+                    <div class="col-span-2">
+                        <span class="text-slate-400 block text-[10px]">Purpose</span>
+                        <span class="font-bold text-slate-800 dark:text-slate-200">${booking.purpose || 'General Business Meeting'}</span>
+                    </div>
                 </div>
 
                 <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
