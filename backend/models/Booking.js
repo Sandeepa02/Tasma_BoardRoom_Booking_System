@@ -44,6 +44,10 @@ const bookingSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    purpose: {
+        type: String,
+        default: 'General Business Meeting'
+    },
     status: {
         type: String,
         enum: ['Confirmed', 'Cancelled'],
@@ -55,6 +59,16 @@ const bookingSchema = new mongoose.Schema({
     },
     bookingCreatedAt: {
         type: String
+    },
+    adminEmailStatus: {
+        type: String,
+        enum: ['pending', 'sent', 'failed'],
+        default: 'pending'
+    },
+    userEmailStatus: {
+        type: String,
+        enum: ['pending', 'sent', 'failed'],
+        default: 'pending'
     }
 }, {
     timestamps: true
