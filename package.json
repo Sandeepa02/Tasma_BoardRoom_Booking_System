@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "node backend/server.js",
-    "create-admin": "node backend/create-admin.js"
+    "create-admin": "node backend/create-admin.js",
+    "test": "node backend/test-notifications.js",
+    "test:email": "node backend/test-email.js"
   },
   "repository": {
     "type": "git",
