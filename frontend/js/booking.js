@@ -184,6 +184,10 @@ function openBookingConfirmationModal() {
                     <span class="text-slate-500">Time Slot:</span>
                     <span class="font-bold text-tasma-orange font-mono">${selectedTimeSlot.label}</span>
                 </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-500">Meeting Purpose:</span>
+                    <input type="text" id="bookingPurposeInput" value="General Business Meeting" class="text-right font-semibold text-slate-900 dark:text-slate-200 bg-transparent border-b border-dashed border-slate-300 dark:border-slate-700 focus:outline-none focus:border-tasma-orange text-xs max-w-[200px]" placeholder="Meeting purpose" />
+                </div>
                 <div class="flex justify-between pt-2 border-t border-slate-200 dark:border-slate-800">
                     <span class="text-slate-500">Reserved By:</span>
                     <span class="font-bold text-slate-900 dark:text-slate-200">${currentUser.fullName} (${currentUser.empId})</span>
@@ -209,6 +213,8 @@ function confirmAndCreateBooking() {
     const token = generateUniqueToken(selectedDate, selectedBoardroom);
     const now = new Date();
     const createdAtFormatted = now.toISOString().replace('T', ' ').substring(0, 16);
+    const purposeInput = document.getElementById('bookingPurposeInput');
+    const purpose = (purposeInput && purposeInput.value.trim()) || 'General Business Meeting';
 
     const newBooking = {
         id: 'BK-' + Date.now(),
@@ -221,6 +227,7 @@ function confirmAndCreateBooking() {
         date: selectedDate,
         startTime: selectedTimeSlot.start,
         endTime: selectedTimeSlot.end,
+        purpose: purpose,
         createdAt: createdAtFormatted,
         status: 'Confirmed',
         fullDay: !!selectedTimeSlot.fullDay
