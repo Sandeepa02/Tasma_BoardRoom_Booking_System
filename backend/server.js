@@ -10,6 +10,7 @@ const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
 const seedData = require('./seed');
+const { checkEmailConfig } = require('./config/email');
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -54,4 +55,5 @@ app.listen(PORT, () => {
     console.log(`🔗 Local URL: http://localhost:${PORT}`);
     console.log(`📡 API URL:   http://localhost:${PORT}/api`);
     console.log(`=========================================`);
+    checkEmailConfig();
 });
