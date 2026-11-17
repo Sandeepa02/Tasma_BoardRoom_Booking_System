@@ -17,10 +17,18 @@ async function main() {
     const verify = await verifyTransporter();
     if (!verify.success) {
         console.error('❌ SMTP verification failed:', verify.error || verify.message);
-        console.log('\n💡 Tip: For Gmail SMTP:');
-        console.log('   - 2-Step Verification must be enabled on your Google Account.');
-        console.log('   - Create a 16-character App Password at https://myaccount.google.com/apppasswords');
-        console.log('   - Set EMAIL_PASS=your_16_character_app_password in .env\n');
+        if (process.env.SMTP_HOST) {
+            console.log(`\n💡 Tip: For Webmail/Corporate SMTP (${process.env.SMTP_HOST}):`);
+            console.log('   - Verify your host (e.g., mail.tasmagroup.com or webmail.tasmagroup.com)');
+            console.log('   - Verify port: 465 (SMTP_SECURE=true) or 587 (SMTP_SECURE=false)');
+            console.log('   - Verify EMAIL_USER is your full webmail email and EMAIL_PASS is your webmail password.');
+            console.log('   - If SSL error occurs, check if SMTP_REJECT_UNAUTHORIZED=false is needed.\n');
+        } else {
+            console.log('\n💡 Tip: For Gmail SMTP:');
+            console.log('   - 2-Step Verification must be enabled on your Google Account.');
+            console.log('   - Create a 16-character App Password at https://myaccount.google.com/apppasswords');
+            console.log('   - Set EMAIL_PASS=your_16_character_app_password in .env\n');
+        }
         process.exit(1);
     }
 
@@ -36,9 +44,10 @@ async function main() {
         status: 'Confirmed'
     };
 
+    const firstAdminEmail = (process.env.ADMIN_EMAIL || 'test@tasmagroup.com').split(/[,;]/)[0].trim();
     const testEmployee = {
         fullName: 'Test Employee',
-        email: process.env.ADMIN_EMAIL || 'test@tasmagroup.com',
+        email: firstAdminEmail,
         empId: 'EMP-001',
         department: 'Operations'
     };
