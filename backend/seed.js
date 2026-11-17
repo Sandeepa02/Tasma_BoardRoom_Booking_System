@@ -28,7 +28,8 @@ const seedData = async () => {
         // 3. Ensure an active Administrator account exists in MongoDB
         const adminCount = await User.countDocuments({ role: 'admin' });
         if (adminCount === 0) {
-            const adminEmail = (process.env.ADMIN_EMAIL || 'admin@tasmagroup.com').trim().toLowerCase();
+            const rawAdminEmail = process.env.ADMIN_EMAIL || 'admin@tasmagroup.com';
+            const adminEmail = rawAdminEmail.split(/[,;]/)[0].trim().toLowerCase();
             const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
             const adminFullName = process.env.ADMIN_NAME || 'System Administrator';
             const adminEmpId = process.env.ADMIN_EMP_ID || 'ADM-001';
