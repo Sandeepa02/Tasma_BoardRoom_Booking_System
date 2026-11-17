@@ -1,7 +1,8 @@
 const nodemailer = require('nodemailer');
 
 /**
- * Creates and returns a reusable Nodemailer transporter using Gmail SMTP
+ * Creates and returns a reusable Nodemailer transporter.
+ * Supports direct SMTP (cPanel/Webmail, custom corporate servers) or predefined services (Gmail).
  */
 function createTransporter() {
     const user = process.env.EMAIL_USER;
@@ -9,6 +10,29 @@ function createTransporter() {
 
     if (!user || !pass) {
         return null;
+    }
+
+    const host = process.env.SMTP_HOST;
+    if (host) {
+        const rawPort = (process.env.SMTP_PORT || '465').toString().trim();
+        const port = parseInt(rawPort, 10) || 465;
+        const secureVal = (process.env.SMTP_SECURE || '').toString().trim().toLowerCase();
+        // Port 465 is direct SSL (secure = true). Ports 25, 26, 587 use STARTTLS (secure = false)
+        const secure = (secureVal === 'true' || port === 465) && port !== 25 && port !== 26 && port !== 587;
+
+        return nodemailer.createTransport({
+            host: host.trim(),
+            port,
+            secure,
+            auth: {
+                user: user.trim(),
+                pass: pass.trim()
+            },
+            tls: {
+                // Allows self-signed or proxy certificates if SMTP_REJECT_UNAUTHORIZED is explicitly false
+                rejectUnauthorized: process.env.SMTP_REJECT_UNAUTHORIZED !== 'false'
+            }
+        });
     }
 
     return nodemailer.createTransport({
@@ -21,15 +45,34 @@ function createTransporter() {
 }
 
 /**
+ * Helper to get list of admin email addresses from environment
+ */
+function getAdminEmails() {
+    const raw = process.env.ADMIN_EMAIL || process.env.ADMIN_EMAILS || '';
+    return raw
+        .split(/[,;]/)
+        .map(e => e.trim())
+        .filter(Boolean);
+}
+
+/**
  * Diagnostic logger for email configuration without exposing secrets
  */
 function checkEmailConfig() {
     const user = process.env.EMAIL_USER;
     const pass = process.env.EMAIL_PASS;
-    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminEmails = getAdminEmails();
+    const host = process.env.SMTP_HOST;
+    const port = process.env.SMTP_PORT || (host ? '465' : 'N/A');
 
     console.log('----------------------------------------------------');
     console.log('📧 [Email Service] Configuration Status:');
+    if (host) {
+        console.log(`   • Mode:        Custom Corporate SMTP (${host}:${port})`);
+    } else {
+        console.log(`   • Mode:        Service Provider (${process.env.EMAIL_SERVICE || 'gmail'})`);
+    }
+
     if (user) {
         const maskedUser = user.replace(/^(.)(.*)(@.*)$/, (_, a, b, c) => a + '*'.repeat(Math.max(1, b.length)) + c);
         console.log(`   • EMAIL_USER:  ${maskedUser}`);
@@ -43,8 +86,8 @@ function checkEmailConfig() {
         console.log('   • EMAIL_PASS:  ❌ Not configured in .env');
     }
 
-    if (adminEmail) {
-        console.log(`   • ADMIN_EMAIL: ${adminEmail} (Admin recipient)`);
+    if (adminEmails.length > 0) {
+        console.log(`   • ADMIN_EMAIL: ${adminEmails.join(', ')} (${adminEmails.length} recipient${adminEmails.length > 1 ? 's' : ''})`);
     } else {
         console.log('   • ADMIN_EMAIL: ❌ Not configured in .env');
     }
@@ -52,12 +95,12 @@ function checkEmailConfig() {
 
     return {
         configured: Boolean(user && pass),
-        hasAdmin: Boolean(adminEmail)
+        hasAdmin: adminEmails.length > 0
     };
 }
 
 /**
- * Verifies the Gmail SMTP transporter connection
+ * Verifies the SMTP transporter connection
  */
 async function verifyTransporter() {
     const transporter = createTransporter();
@@ -70,7 +113,8 @@ async function verifyTransporter() {
 
     try {
         await transporter.verify();
-        console.log('✅ [Email Service] SMTP connection to Gmail verified successfully.');
+        const target = process.env.SMTP_HOST || process.env.EMAIL_SERVICE || 'SMTP server';
+        console.log(`✅ [Email Service] SMTP connection to ${target} verified successfully.`);
         return { success: true };
     } catch (err) {
         console.warn('⚠️ [Email Service] SMTP connection verification failed:', err.message);
@@ -311,12 +355,12 @@ function generateEmployeeEmailHTML(booking, employee) {
 }
 
 /**
- * Sends Admin Notification Email
+ * Sends Admin Notification Email (supports single or multiple recipients)
  */
 async function sendAdminBookingNotification(booking, employee = {}) {
-    const adminEmail = (process.env.ADMIN_EMAIL || '').trim();
+    const adminEmails = getAdminEmails();
 
-    if (!adminEmail) {
+    if (adminEmails.length === 0) {
         console.warn('⚠️ [Admin Email] Skipped: ADMIN_EMAIL is not configured in .env');
         return { success: false, reason: 'ADMIN_EMAIL not set' };
     }
@@ -330,20 +374,21 @@ async function sendAdminBookingNotification(booking, employee = {}) {
     const sender = process.env.EMAIL_USER;
     const subject = 'New Boardroom Booking Received - TASMA Boardroom System';
     const html = generateAdminEmailHTML(booking, employee);
+    const recipients = adminEmails.join(', ');
 
-    console.log(`📨 [Admin Email] Sending notification to administrator: ${adminEmail}`);
+    console.log(`📨 [Admin Email] Sending notification to administrator(s): ${recipients}`);
 
     try {
         const info = await transporter.sendMail({
             from: `"TASMA Boardroom System" <${sender}>`,
-            to: adminEmail,
+            to: recipients,
             subject,
             html
         });
-        console.log(`✅ [Admin Email] Successfully delivered to ${adminEmail} (MessageId: ${info.messageId})`);
-        return { success: true, messageId: info.messageId };
+        console.log(`✅ [Admin Email] Successfully delivered to ${recipients} (MessageId: ${info.messageId})`);
+        return { success: true, messageId: info.messageId, recipients: adminEmails };
     } catch (err) {
-        console.error(`❌ [Admin Email] Delivery failed to ${adminEmail}:`, err.message);
+        console.error(`❌ [Admin Email] Delivery failed to ${recipients}:`, err.message);
         return { success: false, error: err.message };
     }
 }
