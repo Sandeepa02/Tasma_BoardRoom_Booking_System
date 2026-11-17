@@ -42,7 +42,8 @@ async function main() {
             output: process.stdout
         });
 
-        email = await ask(rl, 'Admin Email', process.env.ADMIN_EMAIL || 'admin@tasmagroup.com');
+        const defaultAdminEmail = (process.env.ADMIN_EMAIL || 'admin@tasmagroup.com').split(/[,;]/)[0].trim();
+        email = await ask(rl, 'Admin Email', defaultAdminEmail);
         password = await ask(rl, 'Admin Password', process.env.ADMIN_PASSWORD || 'admin123');
         fullName = await ask(rl, 'Admin Full Name', process.env.ADMIN_NAME || 'System Administrator');
         empId = await ask(rl, 'Employee ID', process.env.ADMIN_EMP_ID || 'ADM-001');
