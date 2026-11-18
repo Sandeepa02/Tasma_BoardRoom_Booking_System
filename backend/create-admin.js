@@ -43,11 +43,16 @@ async function main() {
         });
 
         const defaultAdminEmail = (process.env.ADMIN_EMAIL || 'admin@tasmagroup.com').split(/[,;]/)[0].trim();
+        const defaultAdminPassword = (process.env.ADMIN_PASSWORD || 'admin123').split(/[,;]/)[0].trim();
+        const defaultAdminName = (process.env.ADMIN_NAME || 'System Administrator').split(/[,;]/)[0].trim();
+        const defaultAdminEmpId = (process.env.ADMIN_EMP_ID || 'ADM-001').split(/[,;]/)[0].trim();
+        const defaultAdminDept = (process.env.ADMIN_DEPT || 'IT Department').split(/[,;]/)[0].trim();
+
         email = await ask(rl, 'Admin Email', defaultAdminEmail);
-        password = await ask(rl, 'Admin Password', process.env.ADMIN_PASSWORD || 'admin123');
-        fullName = await ask(rl, 'Admin Full Name', process.env.ADMIN_NAME || 'System Administrator');
-        empId = await ask(rl, 'Employee ID', process.env.ADMIN_EMP_ID || 'ADM-001');
-        department = await ask(rl, 'Department', process.env.ADMIN_DEPT || 'IT Department');
+        password = await ask(rl, 'Admin Password', defaultAdminPassword);
+        fullName = await ask(rl, 'Admin Full Name', defaultAdminName);
+        empId = await ask(rl, 'Employee ID', defaultAdminEmpId);
+        department = await ask(rl, 'Department', defaultAdminDept);
 
         rl.close();
     }
