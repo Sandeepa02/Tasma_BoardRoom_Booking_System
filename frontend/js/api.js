@@ -31,7 +31,11 @@ const api = {
             }
             return { success: true, user: data.user };
         } catch (err) {
-            return { success: false, error: err.message };
+            const isConnectionError = err.name === 'TypeError' || (err.message && err.message.toLowerCase().includes('fetch'));
+            const errorMsg = isConnectionError
+                ? 'Backend server is not reachable. Please start the server using "npm start" on port 5000.'
+                : err.message;
+            return { success: false, error: errorMsg };
         }
     },
 
@@ -87,7 +91,11 @@ const api = {
             await this.syncUsers();
             return { success: true, data };
         } catch (err) {
-            return { success: false, error: err.message };
+            const isConnectionError = err.name === 'TypeError' || (err.message && err.message.toLowerCase().includes('fetch'));
+            const errorMsg = isConnectionError
+                ? 'Backend server is not reachable. Please start the server using "npm start" on port 5000.'
+                : err.message;
+            return { success: false, error: errorMsg };
         }
     },
 
@@ -104,7 +112,11 @@ const api = {
             await this.syncUsers();
             return { success: true, data };
         } catch (err) {
-            return { success: false, error: err.message };
+            const isConnectionError = err.name === 'TypeError' || (err.message && err.message.toLowerCase().includes('fetch'));
+            const errorMsg = isConnectionError
+                ? 'Backend server is not reachable. Please start the server using "npm start" on port 5000.'
+                : err.message;
+            return { success: false, error: errorMsg };
         }
     },
 
@@ -121,7 +133,11 @@ const api = {
             await this.syncUsers();
             return { success: true, data };
         } catch (err) {
-            return { success: false, error: err.message };
+            const isConnectionError = err.name === 'TypeError' || (err.message && err.message.toLowerCase().includes('fetch'));
+            const errorMsg = isConnectionError
+                ? 'Backend server is not reachable. Please start the server using "npm start" on port 5000.'
+                : err.message;
+            return { success: false, error: errorMsg };
         }
     },
 
@@ -138,7 +154,11 @@ const api = {
             await this.syncBookings();
             return { success: true, data };
         } catch (err) {
-            return { success: false, error: err.message };
+            const isConnectionError = err.name === 'TypeError' || (err.message && err.message.toLowerCase().includes('fetch'));
+            const errorMsg = isConnectionError
+                ? 'Backend server is not reachable. Please start the server using "npm start" on port 5000.'
+                : err.message;
+            return { success: false, error: errorMsg };
         }
     },
 
@@ -153,7 +173,11 @@ const api = {
             await this.syncBookings();
             return { success: true, data };
         } catch (err) {
-            return { success: false, error: err.message };
+            const isConnectionError = err.name === 'TypeError' || (err.message && err.message.toLowerCase().includes('fetch'));
+            const errorMsg = isConnectionError
+                ? 'Backend server is not reachable. Please start the server using "npm start" on port 5000.'
+                : err.message;
+            return { success: false, error: errorMsg };
         }
     }
 };
