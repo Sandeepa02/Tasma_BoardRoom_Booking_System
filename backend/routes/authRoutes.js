@@ -10,12 +10,7 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ error: 'Email and password are required.' });
         }
 
-        const query = { email: email.trim().toLowerCase() };
-        if (role) {
-            query.role = role;
-        }
-
-        const user = await User.findOne(query);
+        const user = await User.findOne({ email: email.trim().toLowerCase() });
         if (!user) {
             return res.status(401).json({ error: 'Invalid email or password.' });
         }
@@ -23,6 +18,11 @@ router.post('/login', async (req, res) => {
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
             return res.status(401).json({ error: 'Invalid email or password.' });
+        }
+
+        // If accessing via the Admin Portal tab, require administrator privileges
+        if (role === 'admin' && user.role !== 'admin') {
+            return res.status(403).json({ error: 'Access denied. Administrator privileges required.' });
         }
 
         // Auto-upgrade legacy plaintext password to bcrypt hash on successful login
