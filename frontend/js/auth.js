@@ -113,6 +113,7 @@ async function handleAdminLogin(e) {
                 await api.syncAll();
                 showToast('Admin Portal Access Granted', 'success');
                 launchApp();
+                switchNav('admin-panel');
                 return;
             } else {
                 showToast(result.error || 'Invalid Admin Credentials.', 'error');
@@ -129,6 +130,7 @@ async function handleAdminLogin(e) {
             localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(admin));
             showToast('Admin Portal Access Granted', 'success');
             launchApp();
+            switchNav('admin-panel');
         } else {
             showToast('Invalid Admin Credentials.', 'error');
         }
