@@ -25,30 +25,55 @@ const seedData = async () => {
             console.log(`🧹 Removed ${removedDemoBookings.deletedCount} demo booking(s) from database`);
         }
 
-        // 3. Ensure an active Administrator account exists in MongoDB
-        const adminCount = await User.countDocuments({ role: 'admin' });
-        if (adminCount === 0) {
-            const rawAdminEmail = process.env.ADMIN_EMAIL || 'admin@tasmagroup.com';
-            const adminEmail = rawAdminEmail.split(/[,;]/)[0].trim().toLowerCase();
-            const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-            const adminFullName = process.env.ADMIN_NAME || 'System Administrator';
-            const adminEmpId = process.env.ADMIN_EMP_ID || 'ADM-001';
-            const adminDept = process.env.ADMIN_DEPT || 'IT Department';
+        // 3. Ensure configured Administrator accounts exist in MongoDB
+        const rawAdminEmails = process.env.ADMIN_EMAIL || 'admin@tasmagroup.com';
+        const adminEmails = rawAdminEmails.split(/[,;]/).map(e => e.trim().toLowerCase()).filter(Boolean);
+        const adminPasswords = (process.env.ADMIN_PASSWORD || 'admin123').split(/[,;]/).map(p => p.trim());
+        const adminNames = (process.env.ADMIN_NAME || 'System Administrator').split(/[,;]/).map(n => n.trim());
+        const adminEmpIds = (process.env.ADMIN_EMP_ID || 'ADM-001').split(/[,;]/).map(id => id.trim());
+        const adminDepts = (process.env.ADMIN_DEPT || 'IT Department').split(/[,;]/).map(d => d.trim());
 
-            await User.create({
-                id: 'USR-ADMIN',
-                email: adminEmail,
-                password: adminPassword,
-                fullName: adminFullName,
-                empId: adminEmpId,
-                department: adminDept,
-                role: 'admin',
-                status: 'approved'
-            });
+        for (let i = 0; i < adminEmails.length; i++) {
+            const email = adminEmails[i];
+            const password = adminPasswords[i] || adminPasswords[0] || 'admin123';
+            const fullName = adminNames[i] || adminNames[0] || 'System Administrator';
+            const empId = adminEmpIds[i] || `ADM-00${i + 1}`;
+            const department = adminDepts[i] || adminDepts[0] || 'IT Department';
 
-            console.log(`👑 Initialized Administrator account: ${adminEmail}`);
-        } else {
-            console.log(`✅ Administrator account verified in database (${adminCount} admin(s) present)`);
+            let admin = await User.findOne({ email });
+            if (!admin) {
+                await User.create({
+                    id: `USR-ADMIN-${i + 1}`,
+                    email,
+                    password,
+                    fullName,
+                    empId,
+                    department,
+                    role: 'admin',
+                    status: 'approved'
+                });
+                console.log(`👑 Initialized Administrator account: ${email}`);
+            } else {
+                let updated = false;
+                if (admin.role !== 'admin') { admin.role = 'admin'; updated = true; }
+                if (admin.status !== 'approved') { admin.status = 'approved'; updated = true; }
+                if (fullName && admin.fullName !== fullName) { admin.fullName = fullName; updated = true; }
+                if (empId && admin.empId !== empId) { admin.empId = empId; updated = true; }
+                if (department && admin.department !== department) { admin.department = department; updated = true; }
+
+                const isMatch = await admin.comparePassword(password);
+                if (!isMatch) {
+                    admin.password = password;
+                    updated = true;
+                }
+
+                if (updated) {
+                    await admin.save();
+                    console.log(`👑 Synchronized Administrator account: ${email}`);
+                } else {
+                    console.log(`✅ Administrator verified in database: ${email}`);
+                }
+            }
         }
     } catch (err) {
         console.error('⚠️ Database seed initialization error:', err.message);
