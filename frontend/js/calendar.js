@@ -51,6 +51,7 @@ function renderCalendar() {
 
 function selectCalendarDate(dateStr) {
     selectedDate = dateStr;
+    selectedTimeSlots = [];
     selectedTimeSlot = null;
 
     const [y, m, d] = dateStr.split('-');
