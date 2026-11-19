@@ -44,6 +44,17 @@ const bookingSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    slots: {
+        type: [String],
+        default: []
+    },
+    slotLabels: {
+        type: [String],
+        default: []
+    },
+    timeLabel: {
+        type: String
+    },
     purpose: {
         type: String,
         default: 'General Business Meeting'
