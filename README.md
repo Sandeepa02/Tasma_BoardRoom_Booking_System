@@ -263,13 +263,13 @@ npm run dev
 For a custom port:
 
 ```env
-PORT=3000
+PORT=5000
 ```
 
 Then open:
 
 ```text
-http://localhost:3000
+http://localhost:5000
 ```
 
 ---
