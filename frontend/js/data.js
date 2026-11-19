@@ -13,6 +13,7 @@ const _todayStr = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(
 let currentUser = null;
 let selectedBoardroom = 'Main Boardroom';
 let selectedDate = _todayStr;
+let selectedTimeSlots = [];
 let selectedTimeSlot = null;
 let currentCalendarDate = new Date();
 
