@@ -5,6 +5,21 @@ const Booking = require('../models/Booking');
 const User = require('../models/User');
 const { dispatchBookingEmails } = require('../config/email');
 
+function extractSlotKeys(item) {
+    if (!item) return [];
+    if (item.fullDay) return ['ALL'];
+    if (Array.isArray(item.slots) && item.slots.length > 0) {
+        return item.slots.map(s => {
+            if (typeof s === 'object' && s.start) return s.start;
+            return s.toString().split('–')[0].split('-')[0].trim();
+        });
+    }
+    if (item.startTime) {
+        return [item.startTime.trim()];
+    }
+    return [];
+}
+
 // GET /api/bookings - get all bookings
 router.get('/', async (req, res) => {
     try {
@@ -30,11 +45,14 @@ router.post('/', async (req, res) => {
             endTime,
             purpose,
             fullDay,
+            slots,
+            slotLabels,
+            timeLabel,
             bookingCreatedAt
         } = req.body;
 
-        if (!token || !userId || !boardroom || !date || !startTime || !endTime) {
-            return res.status(400).json({ error: 'Missing required booking fields.' });
+        if (!token || !userId || !boardroom || !date || !startTime || !endTime || !purpose || !purpose.trim()) {
+            return res.status(400).json({ error: 'All fields including meeting purpose are required.' });
         }
 
         // Check for double bookings on the same date and boardroom
@@ -44,13 +62,15 @@ router.post('/', async (req, res) => {
             status: 'Confirmed'
         });
 
+        const reqSlotKeys = extractSlotKeys(req.body);
         const hasConflict = conflicts.some(b => {
             if (fullDay || b.fullDay) return true;
-            return b.startTime === startTime;
+            const existingKeys = extractSlotKeys(b);
+            return reqSlotKeys.some(key => existingKeys.includes(key));
         });
 
         if (hasConflict) {
-            return res.status(409).json({ error: 'Slot already booked! Please select another time.' });
+            return res.status(409).json({ error: 'One or more selected slots are already booked! Please select another time.' });
         }
 
         // Retrieve authenticated employee profile from MongoDB User collection
@@ -84,6 +104,9 @@ router.post('/', async (req, res) => {
             date,
             startTime,
             endTime,
+            slots: Array.isArray(slots) && slots.length > 0 ? slots : [startTime],
+            slotLabels: Array.isArray(slotLabels) ? slotLabels : [],
+            timeLabel: timeLabel || (fullDay ? 'Full Day · 08:00 AM – 06:00 PM' : `${startTime} - ${endTime}`),
             purpose: meetingPurpose,
             fullDay: !!fullDay,
             bookingCreatedAt: bookingCreatedAt || new Date().toISOString().replace('T', ' ').substring(0, 16),
