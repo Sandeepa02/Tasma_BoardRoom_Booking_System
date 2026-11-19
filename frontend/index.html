@@ -350,11 +350,11 @@
                         <!-- TIME SLOT PICKER -->
                         <div class="lg:col-span-7 solid-card rounded-2xl p-5 flex flex-col justify-between">
                             <div>
-                                <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center justify-between mb-3">
                                     <div>
                                         <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                            <i class="fa-solid fa-clock text-tasma-navy"></i>
-                                            <span>3. Select Time Slot</span>
+                                            <i class="fa-solid fa-clock text-tasma-navy dark:text-tasma-orange"></i>
+                                            <span>3. Select Time Slot(s)</span>
                                         </h3>
                                         <p id="selectedDateDisplayLabel" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Selected: September 25, 2026</p>
                                     </div>
@@ -363,13 +363,25 @@
                                     </span>
                                 </div>
 
+                                <div class="flex flex-wrap items-center justify-between gap-2 mb-3 bg-slate-50 dark:bg-slate-950/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                                    <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-layer-group text-tasma-orange text-xs"></i>
+                                        <span>Click multiple slots to reserve consecutive or custom hours.</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-xs">
+                                        <button type="button" onclick="selectAllAvailableSlots()" class="text-[11px] font-semibold text-tasma-navy dark:text-tasma-orange hover:underline">Select All Available</button>
+                                        <span class="text-slate-300 dark:text-slate-700">·</span>
+                                        <button type="button" onclick="clearSelectedSlots()" class="text-[11px] font-semibold text-rose-500 hover:underline">Clear</button>
+                                    </div>
+                                </div>
+
                                 <div id="timeSlotsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                                 </div>
                             </div>
 
                             <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
                                 <div class="w-full sm:w-auto">
-                                    <span class="text-xs text-slate-400 block uppercase font-semibold">Selected Time Slot</span>
+                                    <span class="text-xs text-slate-400 block uppercase font-semibold">Selected Time Slot(s)</span>
                                     <span id="selectedSlotSummary" class="text-sm font-bold text-slate-800 dark:text-white">None Selected</span>
                                 </div>
 
@@ -525,6 +537,7 @@
                                         <option value="Logistic Department">Logistic Department</option>
                                         <option value="Global Department">Global Department</option>
                                         <option value="Audit Department">Audit Department</option>
+                                        <option value="IT Department">IT Department</option>
                                         <option value="Temporary Poll">Temporary Poll</option>
                                     </select>
                                 </div>
@@ -606,16 +619,16 @@
     </div>
 
     <!-- Project scripts: load order matters (data first, main last) -->
-    <script src="js/data.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/calendar.js"></script>
-    <script src="js/booking.js"></script>
-    <script src="js/pass.js"></script>
-    <script src="js/admin.js"></script>
-    <script src="js/profile.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/data.js?v=3"></script>
+    <script src="js/api.js?v=3"></script>
+    <script src="js/ui.js?v=3"></script>
+    <script src="js/auth.js?v=3"></script>
+    <script src="js/app.js?v=3"></script>
+    <script src="js/calendar.js?v=3"></script>
+    <script src="js/booking.js?v=3"></script>
+    <script src="js/pass.js?v=3"></script>
+    <script src="js/admin.js?v=3"></script>
+    <script src="js/profile.js?v=3"></script>
+    <script src="js/main.js?v=3"></script>
 </body>
 </html>
