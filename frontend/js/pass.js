@@ -1,7 +1,7 @@
 // Booking pass: QR code modal, PDF download, detail view
 function showSuccessPassModal(booking) {
     const content = document.getElementById('modalContent');
-    const timeLabel = booking.fullDay ? 'Full Day (8:00 AM – 6:00 PM)' : `${booking.startTime} - ${booking.endTime}`;
+    const timeLabel = booking.timeLabel || (booking.fullDay ? 'Full Day (8:00 AM – 6:00 PM)' : `${booking.startTime} - ${booking.endTime}`);
 
     content.innerHTML = `
         <div class="p-6 space-y-4 text-center">
@@ -129,7 +129,7 @@ function downloadPDFPass(bookingId) {
 
     doc.text(`Boardroom: ${booking.boardroom}`, 110, 68);
     doc.text(`Date: ${booking.date}`, 110, 76);
-    doc.text(`Time Slot: ${booking.fullDay ? 'Full Day (08:00 AM - 06:00 PM)' : booking.startTime + ' - ' + booking.endTime}`, 110, 84);
+    doc.text(`Time Slot: ${booking.timeLabel || (booking.fullDay ? 'Full Day (08:00 AM - 06:00 PM)' : booking.startTime + ' - ' + booking.endTime)}`, 110, 84);
 
     doc.setFillColor(255, 244, 235);
     doc.rect(15, 95, 180, 24, 'F');
