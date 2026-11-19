@@ -1,5 +1,5 @@
 // Admin portal: account creation, approvals and department quota monitoring
-const ALL_DEPTS = ["Co-operate", "Admin Department", "Marketing Department", "Credit Department", "HR Department", "Operations Department", "Finance Department", "Procurement Department", "Logistic Department", "Global Department","Audit Department", "Temporary Poll"];
+const ALL_DEPTS = ["Co-operate", "Admin Department", "Marketing Department", "Credit Department", "HR Department", "Operations Department","IT Department", "Finance Department", "Procurement Department","Global Department","Audit Department", "Temporary Poll"];
 
 async function adminCreateUser(e) {
     e.preventDefault();
