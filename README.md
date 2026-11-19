@@ -1,4 +1,4 @@
-I’ll rewrite the README as a modern, visually engaging project overview, with concise setup instructions and no assumed changes to the application.````markdown name=README.md
+
 <div align="center">
 
 # 🏢 TASMA Boardroom Booking System
