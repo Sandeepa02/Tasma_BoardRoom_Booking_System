@@ -1,6 +1,7 @@
 // Booking flow: boardroom selection, time slots, confirmation, My Bookings table
 function selectBoardroom(name) {
     selectedBoardroom = name;
+    selectedTimeSlots = [];
     selectedTimeSlot = null;
 
     const cardMain = document.getElementById('card-main-boardroom');
@@ -19,6 +20,161 @@ function selectBoardroom(name) {
     updateSummaryDisplay();
 }
 
+function isFullDaySelected() {
+    return Array.isArray(selectedTimeSlots) && selectedTimeSlots.some(s => s && s.fullDay);
+}
+
+function isSlotSelected(slot) {
+    if (isFullDaySelected()) return true;
+    return Array.isArray(selectedTimeSlots) && selectedTimeSlots.some(s => s && s.start === slot.start);
+}
+
+function sortSelectedSlots() {
+    selectedTimeSlots.sort((a, b) => {
+        const aIndex = timeSlotsList.findIndex(s => s.start === a.start);
+        const bIndex = timeSlotsList.findIndex(s => s.start === b.start);
+        return aIndex - bIndex;
+    });
+}
+
+function isSlotBooked(slot, activeBookings) {
+    return activeBookings.some(b => {
+        if (b.fullDay) return true;
+        if (Array.isArray(b.slots) && b.slots.length > 0) {
+            return b.slots.some(s => {
+                const sStart = typeof s === 'string' ? s.split('–')[0].split('-')[0].trim() : s.start;
+                return sStart === slot.start;
+            });
+        }
+        return b.startTime === slot.start;
+    });
+}
+
+function getSelectedSlotsInfo() {
+    if (!Array.isArray(selectedTimeSlots) || selectedTimeSlots.length === 0) {
+        return {
+            count: 0,
+            label: 'None Selected',
+            detailedLabel: 'None Selected',
+            startTime: '',
+            endTime: '',
+            fullDay: false
+        };
+    }
+
+    if (isFullDaySelected()) {
+        return {
+            count: 10,
+            label: 'Full Day · 8:00 AM – 6:00 PM (10 hrs)',
+            detailedLabel: 'Full Day Reservation (8:00 AM – 6:00 PM)',
+            startTime: '08:00 AM',
+            endTime: '06:00 PM',
+            fullDay: true
+        };
+    }
+
+    sortSelectedSlots();
+
+    const count = selectedTimeSlots.length;
+    const firstSlot = selectedTimeSlots[0];
+    const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
+
+    let isConsecutive = true;
+    for (let i = 0; i < selectedTimeSlots.length - 1; i++) {
+        const currIndex = timeSlotsList.findIndex(s => s.start === selectedTimeSlots[i].start);
+        const nextIndex = timeSlotsList.findIndex(s => s.start === selectedTimeSlots[i + 1].start);
+        if (nextIndex !== currIndex + 1) {
+            isConsecutive = false;
+            break;
+        }
+    }
+
+    const durationText = `${count} ${count === 1 ? 'Hour' : 'Hours'}`;
+    let label = '';
+    if (count === 1) {
+        label = `${firstSlot.label} (${durationText})`;
+    } else if (isConsecutive) {
+        label = `${firstSlot.start} – ${lastSlot.end} (${count} slots · ${durationText})`;
+    } else {
+        label = `${count} Slots (${durationText}): ` + selectedTimeSlots.map(s => s.start).join(', ');
+    }
+
+    const detailedLabel = selectedTimeSlots.map(s => s.label).join(' | ');
+
+    return {
+        count,
+        label,
+        detailedLabel,
+        startTime: firstSlot.start,
+        endTime: lastSlot.end,
+        isConsecutive,
+        fullDay: count === 10
+    };
+}
+
+function toggleTimeSlot(slot) {
+    if (isFullDaySelected()) {
+        selectedTimeSlots = [slot];
+    } else {
+        const index = selectedTimeSlots.findIndex(s => s.start === slot.start);
+        if (index >= 0) {
+            selectedTimeSlots.splice(index, 1);
+        } else {
+            selectedTimeSlots.push(slot);
+            sortSelectedSlots();
+        }
+    }
+    selectedTimeSlot = selectedTimeSlots[0] || null;
+    renderTimeSlots();
+    updateSummaryDisplay();
+}
+
+function chooseTimeSlot(slot) {
+    if (slot && slot.fullDay) {
+        toggleFullDay();
+    } else {
+        toggleTimeSlot(slot);
+    }
+}
+
+function toggleFullDay() {
+    if (isFullDaySelected()) {
+        selectedTimeSlots = [];
+        selectedTimeSlot = null;
+    } else {
+        selectedTimeSlots = [FULL_DAY_SLOT];
+        selectedTimeSlot = FULL_DAY_SLOT;
+    }
+    renderTimeSlots();
+    updateSummaryDisplay();
+}
+
+function clearSelectedSlots() {
+    selectedTimeSlots = [];
+    selectedTimeSlot = null;
+    renderTimeSlots();
+    updateSummaryDisplay();
+}
+
+function selectAllAvailableSlots() {
+    const allBookings = getBookings();
+    const activeBookings = allBookings.filter(b =>
+        b.date === selectedDate &&
+        b.boardroom === selectedBoardroom &&
+        b.status === 'Confirmed'
+    );
+    const availableSlots = timeSlotsList.filter(slot => !isSlotBooked(slot, activeBookings));
+    if (availableSlots.length === 0) {
+        showToast('No available slots for this date.', 'warning');
+        return;
+    }
+    selectedTimeSlots = [...availableSlots];
+    selectedTimeSlot = selectedTimeSlots[0] || null;
+    renderTimeSlots();
+    updateSummaryDisplay();
+    showToast(`Selected ${availableSlots.length} available slot(s).`, 'info');
+}
+
 function renderTimeSlots() {
     const grid = document.getElementById('timeSlotsGrid');
     grid.innerHTML = '';
@@ -31,7 +187,7 @@ function renderTimeSlots() {
     );
 
     // Full-day option: unavailable once any slot that day is reserved
-    const fullDaySelected = !!(selectedTimeSlot && selectedTimeSlot.fullDay);
+    const fullDaySelected = isFullDaySelected();
     const fullDayBtn = document.createElement('button');
     fullDayBtn.type = 'button';
 
@@ -52,7 +208,7 @@ function renderTimeSlots() {
         `;
     } else if (fullDaySelected) {
         fullDayBtn.className = "col-span-full p-3 rounded-xl border-2 border-tasma-orange bg-tasma-orange text-white shadow-md flex items-center justify-between gap-3 cursor-pointer transition-all duration-200 scale-[1.01]";
-        fullDayBtn.onclick = () => chooseTimeSlot(FULL_DAY_SLOT);
+        fullDayBtn.onclick = () => toggleFullDay();
         fullDayBtn.innerHTML = `
             <span class="flex items-center gap-3">
                 <span class="w-9 h-9 rounded-lg bg-white/20 text-white flex items-center justify-center"><i class="fa-solid fa-sun"></i></span>
@@ -62,12 +218,12 @@ function renderTimeSlots() {
                 </span>
             </span>
             <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-white/20 text-white flex items-center gap-1">
-                <i class="fa-solid fa-check text-[9px]"></i> Selected
+                <i class="fa-solid fa-check text-[9px]"></i> Selected (Click to Deselect)
             </span>
         `;
     } else {
         fullDayBtn.className = "col-span-full p-3 rounded-xl border-2 border-dashed border-tasma-navy/40 bg-white dark:bg-slate-900 hover:border-tasma-orange text-slate-800 dark:text-slate-100 flex items-center justify-between gap-3 cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-98";
-        fullDayBtn.onclick = () => chooseTimeSlot(FULL_DAY_SLOT);
+        fullDayBtn.onclick = () => toggleFullDay();
         fullDayBtn.innerHTML = `
             <span class="flex items-center gap-3">
                 <span class="w-9 h-9 rounded-lg bg-tasma-navy text-white flex items-center justify-center"><i class="fa-solid fa-sun"></i></span>
@@ -77,15 +233,15 @@ function renderTimeSlots() {
                 </span>
             </span>
             <span class="text-[10px] font-bold text-tasma-orange flex items-center gap-1">
-                Select <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                Select Full Day <i class="fa-solid fa-chevron-right text-[9px]"></i>
             </span>
         `;
     }
     grid.appendChild(fullDayBtn);
 
     timeSlotsList.forEach(slot => {
-        const isBooked = activeBookings.some(b => b.fullDay || b.startTime === slot.start);
-        const isSelected = selectedTimeSlot && !selectedTimeSlot.fullDay && selectedTimeSlot.start === slot.start;
+        const isBooked = isSlotBooked(slot, activeBookings);
+        const isSelected = isSlotSelected(slot);
 
         const slotBtn = document.createElement('button');
         slotBtn.type = 'button';
@@ -100,21 +256,23 @@ function renderTimeSlots() {
                 </span>
             `;
         } else if (isSelected) {
-            slotBtn.className = "p-3 rounded-xl border-2 border-tasma-orange bg-tasma-orange text-white shadow-md scale-[1.02] flex flex-col items-center justify-center gap-1 cursor-pointer transition-all duration-200";
-            slotBtn.onclick = () => chooseTimeSlot(slot);
+            const selectionOrder = selectedTimeSlots.findIndex(s => s.start === slot.start) + 1;
+            const badgeText = isFullDaySelected() ? 'Full Day' : (selectedTimeSlots.length > 1 ? `#${selectionOrder} Selected` : 'Selected');
+            slotBtn.className = "p-3 rounded-xl border-2 border-tasma-orange bg-tasma-orange text-white shadow-md scale-[1.02] flex flex-col items-center justify-center gap-1 cursor-pointer transition-all duration-200 ring-2 ring-tasma-orange/20";
+            slotBtn.onclick = () => toggleTimeSlot(slot);
             slotBtn.innerHTML = `
                 <span class="text-xs font-bold font-mono">${slot.label}</span>
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-white/20 text-white flex items-center gap-1">
-                    <i class="fa-solid fa-check text-[9px]"></i> Selected
+                    <i class="fa-solid fa-circle-check text-[9px]"></i> ${badgeText}
                 </span>
             `;
         } else {
             slotBtn.className = "p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-tasma-orange text-slate-700 dark:text-slate-200 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-95";
-            slotBtn.onclick = () => chooseTimeSlot(slot);
+            slotBtn.onclick = () => toggleTimeSlot(slot);
             slotBtn.innerHTML = `
                 <span class="text-xs font-semibold font-mono">${slot.label}</span>
                 <span class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                    <i class="fa-solid fa-circle text-[6px]"></i> Available
+                    <i class="fa-regular fa-square text-[9px]"></i> Available
                 </span>
             `;
         }
@@ -123,22 +281,23 @@ function renderTimeSlots() {
     });
 }
 
-function chooseTimeSlot(slot) {
-    selectedTimeSlot = slot;
-    renderTimeSlots();
-    updateSummaryDisplay();
-}
-
 function updateSummaryDisplay() {
     const label = document.getElementById('selectedSlotSummary');
     const proceedBtn = document.getElementById('btnProceedBooking');
+    const info = getSelectedSlotsInfo();
 
-    if (selectedTimeSlot) {
-        label.innerText = `${selectedTimeSlot.label}`;
+    if (info.count > 0) {
+        label.innerHTML = `<span class="text-tasma-orange font-bold">${info.label}</span>`;
         proceedBtn.disabled = false;
+        if (proceedBtn.querySelector('span')) {
+            proceedBtn.querySelector('span').innerText = `Proceed (${info.count} ${info.count === 1 ? 'Slot' : 'Slots'})`;
+        }
     } else {
         label.innerText = 'None Selected';
         proceedBtn.disabled = true;
+        if (proceedBtn.querySelector('span')) {
+            proceedBtn.querySelector('span').innerText = 'Proceed to Confirmation';
+        }
     }
 }
 
@@ -150,7 +309,11 @@ function generateUniqueToken(dateStr, boardroom) {
 }
 
 function openBookingConfirmationModal() {
-    if (!selectedTimeSlot) return;
+    const info = getSelectedSlotsInfo();
+    if (info.count === 0) {
+        showToast('Please select at least one time slot.', 'error');
+        return;
+    }
 
     const modal = document.getElementById('globalModal');
     const content = document.getElementById('modalContent');
@@ -180,13 +343,26 @@ function openBookingConfirmationModal() {
                     <span class="text-slate-500">Scheduled Date:</span>
                     <span class="font-bold text-slate-900 dark:text-slate-200">${formattedDate}</span>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Time Slot:</span>
-                    <span class="font-bold text-tasma-orange font-mono">${selectedTimeSlot.label}</span>
+                <div class="flex justify-between items-start">
+                    <span class="text-slate-500 pt-0.5">Time Slot(s):</span>
+                    <div class="text-right">
+                        <span class="font-bold text-tasma-orange font-mono text-xs block">${info.label}</span>
+                        ${!info.fullDay ? `
+                            <div class="flex flex-wrap justify-end gap-1 mt-1.5 max-w-[280px]">
+                                ${selectedTimeSlots.map(s => `<span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-[10px] font-mono font-medium">${s.label}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
                 </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-slate-500">Meeting Purpose:</span>
-                    <input type="text" id="bookingPurposeInput" value="General Business Meeting" class="text-right font-semibold text-slate-900 dark:text-slate-200 bg-transparent border-b border-dashed border-slate-300 dark:border-slate-700 focus:outline-none focus:border-tasma-orange text-xs max-w-[200px]" placeholder="Meeting purpose" />
+                <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
+                    <label for="bookingPurposeInput" class="block text-slate-600 dark:text-slate-300 font-semibold mb-1.5 flex items-center justify-between">
+                        <span class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-clipboard-list text-tasma-orange text-xs"></i>
+                            <span>Meeting Purpose <span class="text-rose-500 font-bold">*</span></span>
+                        </span>
+                        <span class="text-[10px] text-rose-500 font-bold uppercase tracking-wider">Required</span>
+                    </label>
+                    <input type="text" id="bookingPurposeInput" required class="w-full bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-tasma-orange focus:ring-2 focus:ring-tasma-orange/20 transition-all font-medium" placeholder="Enter meeting purpose (e.g. Project Discussion, Client Review)..." autocomplete="off" oninput="this.classList.remove('ring-2', 'ring-rose-500', 'border-rose-500')" />
                 </div>
                 <div class="flex justify-between pt-2 border-t border-slate-200 dark:border-slate-800">
                     <span class="text-slate-500">Reserved By:</span>
@@ -200,7 +376,7 @@ function openBookingConfirmationModal() {
                 </button>
                 <button onclick="confirmAndCreateBooking()" class="flex-1 py-2.5 rounded-xl bg-tasma-navy hover:bg-tasma-navyHover text-white font-bold text-xs shadow-sm flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-check"></i>
-                    <span>Confirm Reservation</span>
+                    <span>Confirm (${info.count} ${info.count === 1 ? 'Slot' : 'Slots'})</span>
                 </button>
             </div>
         </div>
@@ -210,11 +386,30 @@ function openBookingConfirmationModal() {
 }
 
 function confirmAndCreateBooking() {
+    const info = getSelectedSlotsInfo();
+    if (info.count === 0) {
+        showToast('Please select at least one time slot.', 'error');
+        return;
+    }
+
+    const purposeInput = document.getElementById('bookingPurposeInput');
+    const purpose = purposeInput ? purposeInput.value.trim() : '';
+
+    if (!purpose) {
+        showToast('Please enter the meeting purpose.', 'error');
+        if (purposeInput) {
+            purposeInput.focus();
+            purposeInput.classList.add('ring-2', 'ring-rose-500', 'border-rose-500');
+        }
+        return;
+    }
+
     const token = generateUniqueToken(selectedDate, selectedBoardroom);
     const now = new Date();
     const createdAtFormatted = now.toISOString().replace('T', ' ').substring(0, 16);
-    const purposeInput = document.getElementById('bookingPurposeInput');
-    const purpose = (purposeInput && purposeInput.value.trim()) || 'General Business Meeting';
+
+    const slotStarts = info.fullDay ? timeSlotsList.map(s => s.start) : selectedTimeSlots.map(s => s.start);
+    const slotLabels = info.fullDay ? ['Full Day (8:00 AM – 6:00 PM)'] : selectedTimeSlots.map(s => s.label);
 
     const newBooking = {
         id: 'BK-' + Date.now(),
@@ -225,24 +420,31 @@ function confirmAndCreateBooking() {
         email: currentUser.email,
         boardroom: selectedBoardroom,
         date: selectedDate,
-        startTime: selectedTimeSlot.start,
-        endTime: selectedTimeSlot.end,
+        startTime: info.startTime,
+        endTime: info.endTime,
+        slots: slotStarts,
+        slotLabels: slotLabels,
+        timeLabel: info.label,
         purpose: purpose,
         createdAt: createdAtFormatted,
         status: 'Confirmed',
-        fullDay: !!selectedTimeSlot.fullDay
+        fullDay: !!info.fullDay
     };
 
     const bookings = getBookings();
-    const doubleBooking = bookings.find(b =>
-        b.date === selectedDate &&
-        b.boardroom === selectedBoardroom &&
-        b.status === 'Confirmed' &&
-        (selectedTimeSlot.fullDay || b.fullDay || b.startTime === selectedTimeSlot.start)
-    );
+    const doubleBooking = bookings.find(b => {
+        if (b.date !== selectedDate || b.boardroom !== selectedBoardroom || b.status !== 'Confirmed') {
+            return false;
+        }
+        if (info.fullDay || b.fullDay) return true;
+        const bSlots = Array.isArray(b.slots) && b.slots.length > 0
+            ? b.slots.map(s => typeof s === 'string' ? s.split('–')[0].split('-')[0].trim() : s.start)
+            : [b.startTime];
+        return slotStarts.some(s => bSlots.includes(s));
+    });
 
     if (doubleBooking) {
-        showToast('Slot already booked! Please select another time.', 'error');
+        showToast('One or more selected slots are already booked! Please select available slots.', 'error');
         closeModal();
         renderTimeSlots();
         return;
@@ -255,9 +457,10 @@ function confirmAndCreateBooking() {
         api.createBooking(newBooking);
     }
 
-    showToast('Reservation confirmed!', 'success');
+    showToast(`Reservation confirmed for ${info.count} slot(s)!`, 'success');
     showSuccessPassModal(newBooking);
 
+    selectedTimeSlots = [];
     selectedTimeSlot = null;
     renderTimeSlots();
     renderCalendar();
@@ -307,7 +510,7 @@ function renderMyBookingsTable() {
             <td class="px-5 py-3.5 font-bold text-slate-800 dark:text-slate-200">${b.boardroom}</td>
             <td class="px-5 py-3.5">
                 <div class="font-semibold text-slate-800 dark:text-slate-200">${b.date}${b.fullDay ? ' <span class="ml-1 px-1.5 py-0.5 rounded bg-tasma-orange/10 text-tasma-orange text-[9px] font-bold uppercase align-middle">Full Day</span>' : ''}</div>
-                <div class="text-[10px] text-slate-400 font-mono">${b.startTime} - ${b.endTime}</div>
+                <div class="text-[10px] text-slate-400 font-mono">${b.timeLabel || (b.startTime + ' - ' + b.endTime)}</div>
             </td>
             <td class="px-5 py-3.5 text-slate-400 text-[11px]">${b.createdAt}</td>
             <td class="px-5 py-3.5">${statusBadge}</td>
