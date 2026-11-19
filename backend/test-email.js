@@ -2,6 +2,7 @@ require('dotenv').config();
 const {
     checkEmailConfig,
     verifyTransporter,
+    getUserNotificationEmails,
     sendAdminBookingNotification,
     sendEmployeeBookingConfirmation
 } = require('./config/email');
@@ -44,10 +45,11 @@ async function main() {
         status: 'Confirmed'
     };
 
+    const userNotificationEmails = getUserNotificationEmails();
     const firstAdminEmail = (process.env.ADMIN_EMAIL || 'test@tasmagroup.com').split(/[,;]/)[0].trim();
     const testEmployee = {
         fullName: 'Test Employee',
-        email: firstAdminEmail,
+        email: userNotificationEmails.length > 0 ? userNotificationEmails[0] : firstAdminEmail,
         empId: 'EMP-001',
         department: 'Operations'
     };
